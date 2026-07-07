@@ -1,0 +1,369 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model User {
+  id              String               @id @default(cuid())
+  email           String               @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            UserRole             @default(STUDENT)
+  avatarUrl       String?
+  isActive        Boolean              @default(true)
+  xp              Int                  @default(0)
+  streak          Int                  @default(0)
+  lastActiveAt    DateTime?
+  subscriptionExpiresAt DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  courses         Course[]             @relation("CourseAuthor")
+  enrollments     Enrollment[]
+  progress        StepProgress[]
+  refreshTokens   RefreshToken[]
+  badges          UserBadge[]
+  certificates    Certificate[]
+  aiHints         AiHint[]
+  unlockedCourses UserUnlockedCourse[]
+  unlockedModules UserUnlockedModule[]
+  chatMessages    ChatMessage[]
+  sentDMs         DirectMessage[]      @relation("DMSent")
+  receivedDMs     DirectMessage[]      @relation("DMReceived")
+  notifications   Notification[]
+  institutionType String?
+  institutionName String?
+  teacherGroups   Group[]              @relation("TeacherGroups")
+  groupMemberships GroupMember[]
+  ownedItems      UserItem[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model InviteCode {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  maxUses      Int       @default(1)
+  currentUses  Int       @default(0)
+  isActive     Boolean   @default(true)
+  durationDays Int       @default(30)
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime? // Срок активации ключа
+
+  @@index([code])
+}
+
+model Course {
+  id           String               @id @default(cuid())
+  title        String
+  description  String?
+  coverUrl     String?
+  status       String               @default("DRAFT")
+  xp           Int?
+  isDraft      Boolean              @default(true)
+  publishedId  String?              @unique
+  published    Course?              @relation("CoursePublished", fields: [publishedId], references: [id], onDelete: SetNull)
+  draft        Course?              @relation("CoursePublished")
+  password     String?
+  authorId     String
+  author       User                 @relation("CourseAuthor", fields: [authorId], references: [id])
+  modules      Module[]
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  unlockedBy   UserUnlockedCourse[]
+  groups       Group[]              @relation("CourseGroups")
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([authorId])
+  @@index([status])
+}
+
+model Module {
+  id         String               @id @default(cuid())
+  title      String
+  position   Int
+  xp         Int?
+  draftId    String?
+  password   String?
+  isArchived Boolean              @default(false)
+  courseId    String
+  course      Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  unlockedBy  UserUnlockedModule[]
+  availableAt DateTime?
+  deadlineAt  DateTime?
+
+  @@unique([courseId, position])
+  @@index([courseId, position])
+}
+
+model Lesson {
+  id         String   @id @default(cuid())
+  title      String
+  position   Int
+  draftId    String?
+  isArchived Boolean  @default(false)
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  steps       Step[]
+  availableAt DateTime?
+  deadlineAt  DateTime?
+
+  @@unique([moduleId, position])
+  @@index([moduleId, position])
+}
+
+model Step {
+  id         String         @id @default(cuid())
+  title      String
+  content    String?
+  type       String         @default("TEXT")
+  xp         Int?
+  position   Int
+  draftId    String?
+  isArchived Boolean        @default(false)
+  lessonId   String
+  lesson     Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress   StepProgress[]
+  aiHints    AiHint[]
+
+  @@unique([lessonId, position])
+  @@index([lessonId, position])
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model StepProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  stepId      String
+  isCompleted Boolean   @default(false)
+  isCorrect   Boolean?
+  answer      String?
+  attempts    Int       @default(0)
+  timeSpent   Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  step        Step      @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stepId])
+  @@index([userId])
+  @@index([stepId])
+}
+
+model Badge {
+  id               String      @id @default(cuid())
+  name             String
+  description      String
+  iconUrl          String?
+  requirementType  String      // e.g., "STREAK", "COURSE_COMPLETED", "STEPS_COMPLETED", "XP_EARNED"
+  requirementValue Int         // e.g., 3, 1, 10, 1000
+  createdAt        DateTime    @default(now())
+  users            UserBadge[]
+
+  @@index([requirementType])
+}
+
+model UserBadge {
+  id         String   @id @default(cuid())
+  userId     String
+  badgeId    String
+  unlockedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
+
+model Certificate {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  issuedAt   DateTime @default(now())
+  pdfUrl     String?  // Optional: URL to saved PDF, or we can generate on-the-fly
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model AiHint {
+  id        String   @id @default(cuid())
+  userId    String
+  stepId    String
+  code      String
+  hint      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  step      Step     @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stepId])
+}
+
+model UserUnlockedCourse {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  unlockedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model UserUnlockedModule {
+  id         String   @id @default(cuid())
+  userId     String
+  moduleId   String
+  unlockedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module     Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([userId])
+  @@index([moduleId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  senderId    String
+  recipientId String
+  message     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  sender      User     @relation("DMSent", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient   User     @relation("DMReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("SYSTEM") // SYSTEM, BADGE, MODERATION
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Group {
+  id        String        @id @default(cuid())
+  name      String
+  code      String        @unique
+  teacherId String
+  courseId  String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  teacher   User          @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
+  course    Course?       @relation("CourseGroups", fields: [courseId], references: [id], onDelete: SetNull)
+  members   GroupMember[]
+
+  @@index([teacherId])
+  @@index([courseId])
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model ShopItem {
+  id                   String     @id @default(cuid())
+  title                String
+  description          String?
+  cost                 Int
+  type                 String     // AVATAR_FRAME, BADGE, THEME, USERNAME_COLOR
+  imageUrl             String?
+  metadata             String?    // JSON string for colors, configurations
+  requiredCoursesCount Int        @default(0)
+  requiredStreakDays   Int        @default(0)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  purchases            UserItem[]
+}
+
+model UserItem {
+  id         String   @id @default(cuid())
+  userId     String
+  itemId     String
+  isEquipped Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item       ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@index([itemId])
+}
+
+
