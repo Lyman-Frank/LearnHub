@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD, Reflector } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
@@ -25,11 +26,36 @@ import { ShopModule } from './shop/shop.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { SubscriptionGuard } from './auth/guards/subscription.guard';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env'],
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'short',
+            ttl: 1000,
+            limit: 20,
+          },
+          {
+            name: 'medium',
+            ttl: 10000,
+            limit: 100,
+          },
+          {
+            name: 'long',
+            ttl: 60000,
+            limit: 300,
+          },
+        ],
+      }),
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -37,6 +63,7 @@ import { SubscriptionGuard } from './auth/guards/subscription.guard';
       exclude: ['/api*'],
     }),
     PrismaModule,
+    HealthModule,
     AuthModule,
     UsersModule,
     InvitesModule,
@@ -68,6 +95,10 @@ import { SubscriptionGuard } from './auth/guards/subscription.guard';
     {
       provide: APP_GUARD,
       useClass: SubscriptionGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

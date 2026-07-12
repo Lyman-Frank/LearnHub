@@ -177,7 +177,7 @@ export class AuthService {
     const payload = { sub: userId, email, role };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET') || 'cyber_purple_secret_key',
+      secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: (this.configService.get<string>('JWT_EXPIRES_IN') || '15m') as any,
     });
 

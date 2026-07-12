@@ -15,6 +15,7 @@ interface ChatUser {
   lastName: string;
   role: 'STUDENT' | 'TEACHER' | 'ADMIN';
   avatarUrl: string | null;
+  ownedItems?: any[];
 }
 
 interface ChatMessage {
@@ -279,6 +280,27 @@ export function ChatView() {
     }
   };
 
+  const getUsernameColorClass = (user: ChatUser) => {
+    const equippedNC = user?.ownedItems?.find((oi: any) => oi.item.type === 'USERNAME_COLOR')?.item;
+    if (!equippedNC) return '';
+    try {
+      const meta = JSON.parse(equippedNC.metadata || '{}');
+      return meta.colorClass || '';
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const getAvatarFrameMeta = (user: ChatUser) => {
+    const equippedFrame = user?.ownedItems?.find((oi: any) => oi.item.type === 'AVATAR_FRAME')?.item;
+    if (!equippedFrame) return null;
+    try {
+      return JSON.parse(equippedFrame.metadata || '{}');
+    } catch (e) {
+      return null;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
@@ -338,7 +360,9 @@ export function ChatView() {
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full border border-violet-500/20 bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                    <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden shrink-0 ${
+                      getAvatarFrameMeta(conv.user)?.borderClass || 'border-violet-500/20 bg-slate-900'
+                    }`}>
                       {conv.user.avatarUrl ? (
                         <img src={conv.user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
@@ -349,7 +373,7 @@ export function ChatView() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs text-slate-250 truncate">
+                        <span className={`font-bold text-xs truncate ${getUsernameColorClass(conv.user) || 'text-slate-250'}`}>
                           {conv.user.lastName} {conv.user.firstName}
                         </span>
                         {getRoleBadge(conv.user.role)}
@@ -416,7 +440,9 @@ export function ChatView() {
                   <div key={msg.id} className="flex items-start gap-3 text-sm animate-fade-in group">
                     <div 
                       onClick={() => currentUser?.id !== msg.user.id && selectConversation(msg.user)}
-                      className="w-9 h-9 rounded-full border border-violet-500/20 bg-slate-900 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-violet-500 transition-colors"
+                      className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden shrink-0 cursor-pointer transition-colors ${
+                        getAvatarFrameMeta(msg.user)?.borderClass || 'border-violet-500/20 bg-slate-900 hover:border-violet-500'
+                      }`}
                       title="Написать личное сообщение"
                     >
                       {msg.user.avatarUrl ? (
@@ -432,7 +458,9 @@ export function ChatView() {
                       <div className="flex items-center gap-2">
                         <span 
                           onClick={() => currentUser?.id !== msg.user.id && selectConversation(msg.user)}
-                          className="font-bold text-slate-200 cursor-pointer hover:text-violet-400 transition-colors"
+                          className={`font-bold cursor-pointer transition-colors ${
+                            getUsernameColorClass(msg.user) || 'text-slate-200 hover:text-violet-400'
+                          }`}
                           title="Написать личное сообщение"
                         >
                           {msg.user.lastName} {msg.user.firstName}
@@ -487,7 +515,9 @@ export function ChatView() {
                     >
                       <ArrowLeft size={16} />
                     </button>
-                    <div className="w-9 h-9 rounded-full border border-violet-500/20 bg-slate-900 flex items-center justify-center overflow-hidden">
+                    <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden ${
+                      getAvatarFrameMeta(activeConversation)?.borderClass || 'border-violet-500/20 bg-slate-900'
+                    }`}>
                       {activeConversation.avatarUrl ? (
                         <img src={activeConversation.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
@@ -497,7 +527,7 @@ export function ChatView() {
                       )}
                     </div>
                     <div>
-                      <h4 className="font-bold text-xs text-slate-200">
+                      <h4 className={`font-bold text-xs ${getUsernameColorClass(activeConversation) || 'text-slate-200'}`}>
                         {activeConversation.lastName} {activeConversation.firstName}
                       </h4>
                       <div className="flex items-center gap-1.5 mt-0.5">
@@ -529,7 +559,9 @@ export function ChatView() {
                             isMe ? 'ml-auto flex-row-reverse' : 'mr-auto'
                           }`}
                         >
-                          <div className="w-8 h-8 rounded-full border border-violet-500/20 bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                          <div className={`w-8 h-8 rounded-full border flex items-center justify-center overflow-hidden shrink-0 ${
+                            getAvatarFrameMeta(msg.sender)?.borderClass || 'border-violet-500/20 bg-slate-900'
+                          }`}>
                             {msg.sender.avatarUrl ? (
                               <img src={msg.sender.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
