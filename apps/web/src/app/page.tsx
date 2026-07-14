@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   GraduationCap,
   BookOpen,
@@ -219,13 +220,13 @@ export default function HomePage() {
               )}
             </button>
 
-            <button className="btn-secondary text-sm py-2 px-5" id="btn-login">
+            <Link href="/login" className="btn-secondary text-sm py-2 px-5" id="btn-login">
               Войти
-            </button>
-            <button className="btn-primary text-sm py-2 px-5" id="btn-register">
+            </Link>
+            <Link href="/register" className="btn-primary text-sm py-2 px-5" id="btn-register">
               <Zap className="w-4 h-4" />
               Регистрация
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -282,11 +283,11 @@ export default function HomePage() {
                   )}
                 </button>
               </div>
-              <button className="btn-secondary text-sm w-full">Войти</button>
-              <button className="btn-primary text-sm w-full">
+              <Link href="/login" className="btn-secondary flex justify-center text-sm w-full py-2">Войти</Link>
+              <Link href="/register" className="btn-primary flex justify-center text-sm w-full py-2">
                 <Zap className="w-4 h-4" />
                 Регистрация
-              </button>
+              </Link>
             </div>
           </div>
         )}
@@ -349,14 +350,14 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="slide-up-delay-3 flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <button className="btn-primary text-base py-3.5 px-8" id="btn-hero-start">
+            <Link href="/register" className="btn-primary text-base py-3.5 px-8" id="btn-hero-start">
               Начать обучение
               <ArrowRight className="w-5 h-5" />
-            </button>
-            <button className="btn-secondary text-base py-3.5 px-8" id="btn-hero-author">
+            </Link>
+            <Link href="/register" className="btn-secondary text-base py-3.5 px-8" id="btn-hero-author">
               <Rocket className="w-5 h-5" />
               Стать автором
-            </button>
+            </Link>
           </div>
 
           {/* Stats Row */}
@@ -531,10 +532,10 @@ export default function HomePage() {
                   аккаунт и откройте доступ к сотням интерактивных курсов.
                 </p>
 
-                <button className="btn-primary text-base py-4 px-10" id="btn-cta-register">
+                <Link href="/register" className="btn-primary inline-flex text-base py-4 px-10" id="btn-cta-register">
                   Создать аккаунт бесплатно
                   <ArrowRight className="w-5 h-5" />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
