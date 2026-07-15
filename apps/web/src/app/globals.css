@@ -183,15 +183,17 @@ html:not(.dark) {
   --color-indigo-500: #4A6A8C;
   --color-indigo-600: #334e68;
 
-  --color-slate-200: #d9e2ec;
-  --color-slate-300: #bcccdc;
-  --color-slate-400: #9fb3c8;
-  --color-slate-500: #829ab1;
-  --color-slate-600: #4A6A8C;
-  --color-slate-700: #334e68;
-  --color-slate-800: #f0f4f8;
-  --color-slate-850: #f0f4f8;
-  --color-slate-900: #FFFFFF;
+  --color-slate-50: #040d14;
+  --color-slate-100: #0a1b2a;
+  --color-slate-200: #102a43;
+  --color-slate-300: #243b53;
+  --color-slate-400: #334e68;
+  --color-slate-500: #4A6A8C;
+  --color-slate-600: #829ab1;
+  --color-slate-700: #9fb3c8;
+  --color-slate-800: #bcccdc;
+  --color-slate-850: #d9e2ec;
+  --color-slate-900: #f0f4f8;
   --color-slate-950: #FFFFFF;
 
   /* Theme variables override for buttons */
