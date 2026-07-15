@@ -87,7 +87,7 @@
   --color-slate-950: #1b262c;
 
   /* ── Design System Tokens ── */
-  --color-bg-light: #ebfffa;
+  --color-bg-light: #F5F5F5;
   --color-bg-dark: #1b262c;
   --color-card-light: #FFFFFF;
   --color-card-dark: #0f4c75;
@@ -137,6 +137,21 @@
   --animate-float-slow: float 10s ease-in-out infinite;
   --animate-float-medium: float 7s ease-in-out infinite;
   --animate-particle: particle-float 15s ease-in-out infinite;
+  /* Default/Dark Theme CSS Variables */
+  --btn-primary-bg: linear-gradient(135deg, #3282b8, #0f4c75);
+  --btn-primary-hover: linear-gradient(135deg, #bbe1fa, #3282b8);
+  --btn-secondary-text: #3282b8;
+  --btn-secondary-border: #bbe1fa;
+  --btn-secondary-hover-bg: rgba(50, 130, 184, 0.08);
+  --btn-secondary-hover-border: #3282b8;
+  --card-hover-border: rgba(13, 206, 218, 0.15);
+  
+  --gradient-text-bg: linear-gradient(135deg, #3282b8, #26c6da, #bbe1fa);
+  --animated-bg: linear-gradient(-45deg, #ebfffa, #c6fce5, #dafff2, #ebfffa, #e0f7fa);
+  --shimmer-bg: linear-gradient(90deg, rgba(13, 206, 218, 0.05) 25%, rgba(13, 206, 218, 0.15) 50%, rgba(13, 206, 218, 0.05) 75%);
+  --scrollbar-track: #ebfffa;
+  --scrollbar-thumb: linear-gradient(180deg, #0dceda, #6ef3d6);
+  --scrollbar-thumb-hover: linear-gradient(180deg, #0bb8c3, #0dceda);
 }
 
 /* ============================================
@@ -144,36 +159,52 @@
    ============================================ */
 
 html:not(.dark) {
-  --color-violet-50:  #ebfffa;
-  --color-violet-100: #dafff2;
-  --color-violet-200: #c6fce5;
-  --color-violet-300: #6ef3d6;
-  --color-violet-400: #0dceda;
-  --color-violet-500: #0dceda;
-  --color-violet-600: #0bb8c3;
-  --color-violet-700: #09a3ab;
-  --color-violet-800: #078e94;
-  --color-violet-900: #05787c;
-  --color-violet-950: #046466;
+  --color-violet-50:  #e0f2f1;
+  --color-violet-100: #b2dfdb;
+  --color-violet-200: #80cbc4;
+  --color-violet-300: #4db6ac;
+  --color-violet-400: #26a69a;
+  --color-violet-500: #008080;
+  --color-violet-600: #00695c;
+  --color-violet-700: #004d40;
+  --color-violet-800: #00332a;
+  --color-violet-900: #001a15;
+  --color-violet-950: #000d0a;
 
-  --color-fuchsia-400: #6ef3d6;
-  --color-fuchsia-500: #0dceda;
-  --color-fuchsia-600: #0bb8c3;
+  --color-fuchsia-400: #26c6da;
+  --color-fuchsia-500: #00CED1;
+  --color-fuchsia-600: #00bcd4;
 
-  --color-indigo-400: #4dd0e1;
-  --color-indigo-500: #0dceda;
-  --color-indigo-600: #0bb8c3;
+  --color-indigo-400: #4db6ac;
+  --color-indigo-500: #008080;
+  --color-indigo-600: #00695c;
 
-  --color-slate-200: #c6fce5;
-  --color-slate-300: #a3e8d0;
-  --color-slate-400: #78d4bc;
-  --color-slate-500: #52c0a8;
-  --color-slate-600: #3aab94;
-  --color-slate-700: #2a9680;
-  --color-slate-800: #d5f7ed;
-  --color-slate-850: #dff9f0;
-  --color-slate-900: #e5fbf4;
-  --color-slate-950: #ebfffa;
+  --color-slate-200: #b2dfdb;
+  --color-slate-300: #80cbc4;
+  --color-slate-400: #4db6ac;
+  --color-slate-500: #26a69a;
+  --color-slate-600: #008080;
+  --color-slate-700: #00695c;
+  --color-slate-800: #e0f2f1;
+  --color-slate-850: #e0f2f1;
+  --color-slate-900: #f5f5f5;
+  --color-slate-950: #f5f5f5;
+
+  /* Theme variables override for buttons */
+  --btn-primary-bg: linear-gradient(135deg, #008080, #00CED1);
+  --btn-primary-hover: linear-gradient(135deg, #00CED1, #008080);
+  --btn-secondary-text: #008080;
+  --btn-secondary-border: #00CED1;
+  --btn-secondary-hover-bg: rgba(0, 128, 128, 0.08);
+  --btn-secondary-hover-border: #008080;
+  --card-hover-border: rgba(0, 128, 128, 0.15);
+  
+  --gradient-text-bg: linear-gradient(135deg, #008080, #00CED1, #26a69a);
+  --animated-bg: linear-gradient(-45deg, #F5F5F5, #e0f2f1, #b2dfdb, #F5F5F5, #e0f2f1);
+  --shimmer-bg: linear-gradient(90deg, rgba(0, 128, 128, 0.05) 25%, rgba(0, 128, 128, 0.15) 50%, rgba(0, 128, 128, 0.05) 75%);
+  --scrollbar-track: #F5F5F5;
+  --scrollbar-thumb: linear-gradient(180deg, #00CED1, #008080);
+  --scrollbar-thumb-hover: linear-gradient(180deg, #008080, #00695c);
 }
 
 /* ── Keyframes ── */
@@ -335,16 +366,16 @@ html.dark body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #ebfffa;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #0dceda, #6ef3d6);
+  background: var(--scrollbar-thumb);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #0bb8c3, #0dceda);
+  background: var(--scrollbar-thumb-hover);
 }
 
 .dark ::-webkit-scrollbar-track,
@@ -421,7 +452,7 @@ html.dark .glass {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #3282b8, #0f4c75);
+  background: var(--btn-primary-bg);
   color: white;
   font-weight: 600;
   font-size: 0.95rem;
@@ -447,7 +478,7 @@ html.dark .glass {
 .btn-primary:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: var(--shadow-neon-lg);
-  background: linear-gradient(135deg, #bbe1fa, #3282b8);
+  background: var(--btn-primary-hover);
 }
 
 .btn-primary:hover::before {
@@ -460,7 +491,7 @@ html.dark .glass {
 
 .dark .btn-primary,
 html.dark .btn-primary {
-  background: linear-gradient(135deg, #3282b8, #0f4c75);
+  background: linear-gradient(135deg, #3282b8, #0f4c75); /* Explicit dark */
   box-shadow: var(--shadow-neon-lg);
 }
 
@@ -477,10 +508,10 @@ html.dark .btn-primary:hover {
   gap: 0.5rem;
   padding: 0.75rem 1.75rem;
   background: transparent;
-  color: #3282b8;
+  color: var(--btn-secondary-text);
   font-weight: 600;
   font-size: 0.95rem;
-  border: 2px solid #bbe1fa;
+  border: 2px solid var(--btn-secondary-border);
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -488,8 +519,8 @@ html.dark .btn-primary:hover {
 }
 
 .btn-secondary:hover {
-  background: rgba(50, 130, 184, 0.08);
-  border-color: #3282b8;
+  background: var(--btn-secondary-hover-bg);
+  border-color: var(--btn-secondary-hover-border);
   transform: translateY(-2px);
   box-shadow: 0 0 15px rgba(50, 130, 184, 0.15);
 }
@@ -541,7 +572,7 @@ html.dark .btn-secondary:hover {
 .card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-card-hover-light);
-  border-color: rgba(13, 206, 218, 0.15);
+  border-color: var(--card-hover-border);
 }
 
 .card:hover::before {
@@ -567,7 +598,7 @@ html.dark .card:hover {
    ============================================ */
 
 .gradient-text {
-  background: linear-gradient(135deg, #3282b8, #26c6da, #bbe1fa);
+  background: var(--gradient-text-bg);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -590,14 +621,7 @@ html.dark .gradient-text {
    ============================================ */
 
 .animated-gradient-bg {
-  background: linear-gradient(
-    -45deg,
-    #ebfffa,
-    #c6fce5,
-    #dafff2,
-    #ebfffa,
-    #e0f7fa
-  );
+  background: var(--animated-bg);
   background-size: 400% 400%;
   animation: gradient-shift 12s ease infinite;
 }
@@ -642,12 +666,7 @@ html.dark .particle {
    ============================================ */
 
 .shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(13, 206, 218, 0.05) 25%,
-    rgba(13, 206, 218, 0.15) 50%,
-    rgba(13, 206, 218, 0.05) 75%
-  );
+  background: var(--shimmer-bg);
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
   border-radius: var(--radius-md);

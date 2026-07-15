@@ -122,19 +122,19 @@ const stats = [
    MAIN PAGE COMPONENT
    ═════════════════════════════════════════════ */
 export default function HomePage() {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   /* ── Load theme preference from localStorage on mount ── */
   useEffect(() => {
     const stored = localStorage.getItem('learnhub_theme');
-    if (stored === 'light') {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    } else {
+    if (stored === 'dark') {
       setIsDark(true);
       document.documentElement.classList.add('dark');
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 

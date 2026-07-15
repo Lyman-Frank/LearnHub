@@ -27,13 +27,13 @@ const themeScript = `
   (function() {
     try {
       var theme = localStorage.getItem('learnhub_theme');
-      if (theme === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
+      if (theme === 'dark') {
         document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
       }
     } catch(e) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('dark');
     }
   })();
 `;
@@ -44,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`${inter.variable} dark`} suppressHydrationWarning>
+    <html lang="ru" className={`${inter.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
