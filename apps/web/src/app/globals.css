@@ -159,52 +159,56 @@
    ============================================ */
 
 html:not(.dark) {
-  --color-violet-50:  #e0f2f1;
-  --color-violet-100: #b2dfdb;
-  --color-violet-200: #80cbc4;
-  --color-violet-300: #4db6ac;
-  --color-violet-400: #26a69a;
-  --color-violet-500: #008080;
-  --color-violet-600: #00695c;
-  --color-violet-700: #004d40;
-  --color-violet-800: #00332a;
-  --color-violet-900: #001a15;
-  --color-violet-950: #000d0a;
+  --color-bg-light: #FFFFFF;
+  --color-text-light: #000000;
+  --color-text-muted-light: #9E9E9E;
 
-  --color-fuchsia-400: #26c6da;
-  --color-fuchsia-500: #00CED1;
-  --color-fuchsia-600: #00bcd4;
+  --color-violet-50:  #f0f4f8;
+  --color-violet-100: #d9e2ec;
+  --color-violet-200: #bcccdc;
+  --color-violet-300: #9fb3c8;
+  --color-violet-400: #829ab1;
+  --color-violet-500: #4A6A8C; /* Primary Slate Blue */
+  --color-violet-600: #334e68;
+  --color-violet-700: #243b53;
+  --color-violet-800: #102a43;
+  --color-violet-900: #0a1b2a;
+  --color-violet-950: #040d14;
 
-  --color-indigo-400: #4db6ac;
-  --color-indigo-500: #008080;
-  --color-indigo-600: #00695c;
+  --color-fuchsia-400: #9E9E9E;
+  --color-fuchsia-500: #000000;
+  --color-fuchsia-600: #000000;
 
-  --color-slate-200: #b2dfdb;
-  --color-slate-300: #80cbc4;
-  --color-slate-400: #4db6ac;
-  --color-slate-500: #26a69a;
-  --color-slate-600: #008080;
-  --color-slate-700: #00695c;
-  --color-slate-800: #e0f2f1;
-  --color-slate-850: #e0f2f1;
-  --color-slate-900: #f5f5f5;
-  --color-slate-950: #f5f5f5;
+  --color-indigo-400: #829ab1;
+  --color-indigo-500: #4A6A8C;
+  --color-indigo-600: #334e68;
+
+  --color-slate-200: #d9e2ec;
+  --color-slate-300: #bcccdc;
+  --color-slate-400: #9fb3c8;
+  --color-slate-500: #829ab1;
+  --color-slate-600: #4A6A8C;
+  --color-slate-700: #334e68;
+  --color-slate-800: #f0f4f8;
+  --color-slate-850: #f0f4f8;
+  --color-slate-900: #FFFFFF;
+  --color-slate-950: #FFFFFF;
 
   /* Theme variables override for buttons */
-  --btn-primary-bg: linear-gradient(135deg, #008080, #00CED1);
-  --btn-primary-hover: linear-gradient(135deg, #00CED1, #008080);
-  --btn-secondary-text: #008080;
-  --btn-secondary-border: #00CED1;
-  --btn-secondary-hover-bg: rgba(0, 128, 128, 0.08);
-  --btn-secondary-hover-border: #008080;
-  --card-hover-border: rgba(0, 128, 128, 0.15);
+  --btn-primary-bg: linear-gradient(135deg, #4A6A8C, #000000);
+  --btn-primary-hover: linear-gradient(135deg, #000000, #4A6A8C);
+  --btn-secondary-text: #000000;
+  --btn-secondary-border: #4A6A8C;
+  --btn-secondary-hover-bg: rgba(74, 106, 140, 0.08);
+  --btn-secondary-hover-border: #000000;
+  --card-hover-border: rgba(74, 106, 140, 0.15);
   
-  --gradient-text-bg: linear-gradient(135deg, #008080, #00CED1, #26a69a);
-  --animated-bg: linear-gradient(-45deg, #F5F5F5, #e0f2f1, #b2dfdb, #F5F5F5, #e0f2f1);
-  --shimmer-bg: linear-gradient(90deg, rgba(0, 128, 128, 0.05) 25%, rgba(0, 128, 128, 0.15) 50%, rgba(0, 128, 128, 0.05) 75%);
-  --scrollbar-track: #F5F5F5;
-  --scrollbar-thumb: linear-gradient(180deg, #00CED1, #008080);
-  --scrollbar-thumb-hover: linear-gradient(180deg, #008080, #00695c);
+  --gradient-text-bg: linear-gradient(135deg, #000000, #4A6A8C, #9E9E9E);
+  --animated-bg: linear-gradient(-45deg, #FFFFFF, #f0f4f8, #d9e2ec, #FFFFFF, #f0f4f8);
+  --shimmer-bg: linear-gradient(90deg, rgba(74, 106, 140, 0.05) 25%, rgba(74, 106, 140, 0.15) 50%, rgba(74, 106, 140, 0.05) 75%);
+  --scrollbar-track: #FFFFFF;
+  --scrollbar-thumb: linear-gradient(180deg, #9E9E9E, #4A6A8C);
+  --scrollbar-thumb-hover: linear-gradient(180deg, #4A6A8C, #000000);
 }
 
 /* ── Keyframes ── */
