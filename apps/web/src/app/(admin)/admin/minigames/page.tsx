@@ -29,7 +29,7 @@ function createEmptyLevel(id: number): ManagedLevel {
     title: `Уровень ${id}`,
     description: 'Описание уровня',
     grid_size: { rows: 5, cols: 5 },
-    start_position: { x: 0, y: 0, direction: 'right' },
+    start_position: { x: 0, y: 0 },
     finish_position: { x: 4, y: 4 },
     obstacles: [],
     coins: [],
