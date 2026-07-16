@@ -14,6 +14,8 @@ interface CommandListProps {
   onMove: (dragInfo: DragInfo, target: DropTarget) => void;
   onUpdateLoop: (id: string, repeat: number, functionId?: 'f1' | 'f2') => void;
   onUpdateIfColor: (id: string, color: ColorType, functionId?: 'f1' | 'f2') => void;
+  onUpdateWhile: (id: string, condition: any, functionId?: 'f1' | 'f2') => void;
+  onUpdateIfAdvanced: (id: string, condition: any, functionId?: 'f1' | 'f2') => void;
   onDragStart: (info: DragInfo) => void;
   isDragging: boolean;
   f1Name?: string;
@@ -73,6 +75,8 @@ function CommandItem({
   onMove,
   onUpdateLoop,
   onUpdateIfColor,
+  onUpdateWhile,
+  onUpdateIfAdvanced,
   onDragStart,
   isDragging,
   f1Name,
@@ -89,6 +93,8 @@ function CommandItem({
   onMove: (dragInfo: DragInfo, target: DropTarget) => void;
   onUpdateLoop: (id: string, repeat: number, functionId?: 'f1' | 'f2') => void;
   onUpdateIfColor: (id: string, color: ColorType, functionId?: 'f1' | 'f2') => void;
+  onUpdateWhile: (id: string, condition: any, functionId?: 'f1' | 'f2') => void;
+  onUpdateIfAdvanced: (id: string, condition: any, functionId?: 'f1' | 'f2') => void;
   onDragStart: (info: DragInfo) => void;
   isDragging: boolean;
   f1Name?: string;
@@ -119,8 +125,8 @@ function CommandItem({
         functionId={functionId}
       />
 
-      {cmd.type === 'loop' || cmd.type === 'if_color' ? (
-        // ─── БЛОК-КОНТЕЙНЕР (Цикл или Условие) ────────────────
+      {cmd.type === 'loop' || cmd.type === 'if_color' || cmd.type === 'while' || cmd.type === 'if_advanced' ? (
+        // ─── БЛОК-КОНТЕЙНЕР (Цикл, Условие, While, If_Advanced) ────────────────
         <div
           className={`
             rounded-xl border-2 transition-all duration-200
@@ -128,7 +134,11 @@ function CommandItem({
               ? 'border-violet-400/80 bg-violet-955/20 shadow-lg'
               : cmd.type === 'loop'
                 ? 'border-amber-500/20 bg-amber-950/10'
-                : 'border-rose-500/20 bg-rose-955/10'
+                : cmd.type === 'while'
+                  ? 'border-orange-500/20 bg-orange-950/10'
+                  : cmd.type === 'if_advanced'
+                    ? 'border-pink-500/20 bg-pink-950/10'
+                    : 'border-rose-500/20 bg-rose-955/10'
             }
           `}
         >
@@ -172,7 +182,7 @@ function CommandItem({
                   </div>
                 )}
               </>
-            ) : (
+            ) : cmd.type === 'if_color' ? (
               <>
                 <span className="text-xs font-bold mr-1">Если на</span>
                 {/* Селектор цвета плитки для условия */}
@@ -199,6 +209,41 @@ function CommandItem({
                     style={{ backgroundColor: COLOR_HEX[cmd.conditionColor ?? 'red'] }}
                   />
                 )}
+                <span className="flex-1" />
+              </>
+            ) : cmd.type === 'while' ? (
+              <>
+                <span className="text-xs font-bold mr-1 text-orange-200">Пока:</span>
+                {!disabled && cmd.whileCondition && (
+                  <select
+                    className="bg-black/40 text-xs text-orange-300 outline-none border border-orange-500/30 rounded p-0.5"
+                    value={cmd.whileCondition.type}
+                    onChange={e => onUpdateWhile(cmd.id, { ...cmd.whileCondition, type: e.target.value as any }, functionId)}
+                  >
+                    <option value="free_ahead">Свободно впереди</option>
+                    <option value="color">На цвете</option>
+                    <option value="resource_gte">Ресурсов &gt;= 1</option>
+                  </select>
+                )}
+                {disabled && cmd.whileCondition && <span className="text-xs text-orange-300">{cmd.whileCondition.type}</span>}
+                <span className="flex-1" />
+              </>
+            ) : (
+              <>
+                <span className="text-xs font-bold mr-1 text-pink-200">Условие И:</span>
+                {!disabled && cmd.advancedCondition && (
+                  <div className="flex gap-1">
+                    <select
+                      className="bg-black/40 text-[10px] text-pink-300 outline-none border border-pink-500/30 rounded p-0.5"
+                      value={cmd.advancedCondition.clauses[0]?.type || 'resource_gte'}
+                      onChange={e => onUpdateIfAdvanced(cmd.id, { ...cmd.advancedCondition, clauses: [{ type: e.target.value as any, value: e.target.value === 'resource_gte' ? 1 : 'red' }] }, functionId)}
+                    >
+                      <option value="resource_gte">Ресурсов &gt;= 1</option>
+                      <option value="free_ahead">Свободно впереди</option>
+                    </select>
+                  </div>
+                )}
+                {disabled && <span className="text-[10px] text-pink-300">Настроено</span>}
                 <span className="flex-1" />
               </>
             )}
@@ -241,6 +286,8 @@ function CommandItem({
                     onMove={onMove}
                     onUpdateLoop={onUpdateLoop}
                     onUpdateIfColor={onUpdateIfColor}
+                    onUpdateWhile={onUpdateWhile}
+                    onUpdateIfAdvanced={onUpdateIfAdvanced}
                     onDragStart={onDragStart}
                     isDragging={isDragging}
                     f1Name={f1Name}
@@ -321,6 +368,8 @@ export function CommandList({
   onMove,
   onUpdateLoop,
   onUpdateIfColor,
+  onUpdateWhile,
+  onUpdateIfAdvanced,
   onDragStart,
   isDragging,
   f1Name,
@@ -368,6 +417,8 @@ export function CommandList({
           onMove={onMove}
           onUpdateLoop={onUpdateLoop}
           onUpdateIfColor={onUpdateIfColor}
+          onUpdateWhile={onUpdateWhile}
+          onUpdateIfAdvanced={onUpdateIfAdvanced}
           onDragStart={onDragStart}
           isDragging={isDragging}
           f1Name={f1Name}

@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 // ДВИЖОК v3.0 — Условия, Функции, Вложенные рекурсивные вызовы
 // ═══════════════════════════════════════════════════════════
-import { Command, LevelConfig, MovementCommand, Position, RobotState, StepResult, ColorType } from './types';
+import { Command, LevelConfig, MovementCommand, Position, RobotState, StepResult, ColorType, ConditionClause, AdvancedCondition } from './types';
 
 // ─── Вспомогательные функции движения ────────────────────────
 
@@ -34,11 +34,27 @@ export function getCellColor(pos: Position, level: LevelConfig): ColorType | nul
   return cell ? cell.color : null;
 }
 
+export function isFreeAhead(state: RobotState, level: LevelConfig): boolean {
+  const dir = state.lastMove ?? 'move_right';
+  const delta: Record<MovementCommand, Position> = {
+    move_up:    { x: 0,  y: -1 },
+    move_down:  { x: 0,  y:  1 },
+    move_left:  { x: -1, y:  0 },
+    move_right: { x: 1,  y:  0 },
+  };
+  const next: Position = { x: state.x + delta[dir].x, y: state.y + delta[dir].y };
+  
+  if (isOutOfBounds(next, level)) return false;
+  if (isObstacle(next, level)) return false;
+  return true;
+}
+
 // ─── Контекст выполнения ───────────────────────────────────
 
 interface ExecCtx {
   state: RobotState;
   coins: string[];
+  resources: string[];
   done: boolean;
   f1: Command[];
   f2: Command[];
@@ -46,6 +62,32 @@ interface ExecCtx {
 }
 
 const MAX_CALL_STACK = 150;
+
+// ─── Оценка условий ────────────────────────────────────────
+
+export function evaluateConditionClause(clause: ConditionClause, ctx: ExecCtx, level: LevelConfig): boolean {
+  if (clause.type === 'free_ahead') {
+    return isFreeAhead(ctx.state, level);
+  }
+  if (clause.type === 'color') {
+    return getCellColor(ctx.state, level) === clause.value;
+  }
+  if (clause.type === 'resource_gte') {
+    return ctx.resources.length >= Number(clause.value || 0);
+  }
+  return false;
+}
+
+export function evaluateAdvancedCondition(cond: AdvancedCondition, ctx: ExecCtx, level: LevelConfig): boolean {
+  if (!cond.clauses || cond.clauses.length === 0) return false;
+  
+  if (cond.operator === 'AND') {
+    return cond.clauses.every(c => evaluateConditionClause(c, ctx, level));
+  } else {
+    // OR
+    return cond.clauses.some(c => evaluateConditionClause(c, ctx, level));
+  }
+}
 
 // ─── Рекурсивный генератор шагов ───────────────────────────
 
@@ -63,6 +105,7 @@ async function* executeInner(
       yield {
         state: ctx.state,
         collectedCoins: [...ctx.coins],
+        collectedResources: [...ctx.resources],
         finished: false,
         error: '🚨 Превышена глубина вызовов функций (вечный цикл)!',
       };
@@ -85,8 +128,41 @@ async function* executeInner(
     // 2. Обработка Условия (if_color)
     if (cmd.type === 'if_color') {
       const robotColor = getCellColor(ctx.state, level);
-      // Если робот на нужном цвете — выполняем вложенные команды
       if (robotColor && robotColor === cmd.conditionColor) {
+        ctx.callStackDepth++;
+        yield* executeInner(cmd.children ?? [], ctx, level, delayMs);
+        ctx.callStackDepth--;
+      }
+      continue;
+    }
+
+    // 2a. Обработка сложного условия (if_advanced)
+    if (cmd.type === 'if_advanced' && cmd.advancedCondition) {
+      if (evaluateAdvancedCondition(cmd.advancedCondition, ctx, level)) {
+        ctx.callStackDepth++;
+        yield* executeInner(cmd.children ?? [], ctx, level, delayMs);
+        ctx.callStackDepth--;
+      }
+      continue;
+    }
+
+    // 2b. Обработка цикла While
+    if (cmd.type === 'while' && cmd.whileCondition) {
+      let iterationCount = 0;
+      while (evaluateConditionClause(cmd.whileCondition, ctx, level)) {
+        if (ctx.done) return;
+        iterationCount++;
+        if (iterationCount > 1000) {
+          yield {
+            state: ctx.state,
+            collectedCoins: [...ctx.coins],
+            collectedResources: [...ctx.resources],
+            finished: false,
+            error: '🚨 Обнаружен бесконечный цикл (более 1000 итераций)!',
+          };
+          ctx.done = true;
+          return;
+        }
         ctx.callStackDepth++;
         yield* executeInner(cmd.children ?? [], ctx, level, delayMs);
         ctx.callStackDepth--;
@@ -117,13 +193,13 @@ async function* executeInner(
     const next = applyMovement(ctx.state, cmd.type as MovementCommand);
 
     if (isOutOfBounds(next, level)) {
-      yield { state: ctx.state, collectedCoins: [...ctx.coins], finished: false, error: '🤖 Робот вышел за пределы поля!' };
+      yield { state: ctx.state, collectedCoins: [...ctx.coins], collectedResources: [...ctx.resources], finished: false, error: '🤖 Робот вышел за пределы поля!' };
       ctx.done = true;
       return;
     }
 
     if (isObstacle(next, level)) {
-      yield { state: ctx.state, collectedCoins: [...ctx.coins], finished: false, error: '🧱 Столкновение со стеной!' };
+      yield { state: ctx.state, collectedCoins: [...ctx.coins], collectedResources: [...ctx.resources], finished: false, error: '🧱 Столкновение со стеной!' };
       ctx.done = true;
       return;
     }
@@ -131,13 +207,17 @@ async function* executeInner(
     ctx.state = next;
 
     // Монеты
-    const coinKey = `${next.x}:${next.y}`;
-    if (!ctx.coins.includes(coinKey) && level.coins?.some(c => c.x === next.x && c.y === next.y)) {
-      ctx.coins.push(coinKey);
+    const cellKey = `${next.x}:${next.y}`;
+    if (!ctx.coins.includes(cellKey) && level.coins?.some(c => c.x === next.x && c.y === next.y)) {
+      ctx.coins.push(cellKey);
+    }
+    // Ресурсы
+    if (!ctx.resources.includes(cellKey) && level.resources?.some(c => c.x === next.x && c.y === next.y)) {
+      ctx.resources.push(cellKey);
     }
 
     const finished = isAtFinish(ctx.state, level);
-    yield { state: { ...ctx.state }, collectedCoins: [...ctx.coins], finished };
+    yield { state: { ...ctx.state }, collectedCoins: [...ctx.coins], collectedResources: [...ctx.resources], finished };
 
     if (finished) {
       ctx.done = true;
@@ -157,6 +237,7 @@ export async function* executeCommands(
   const ctx: ExecCtx = {
     state: { ...initState },
     coins: [],
+    resources: [],
     done: false,
     f1: f1Commands,
     f2: f2Commands,
@@ -169,6 +250,7 @@ export async function* executeCommands(
     yield {
       state: ctx.state,
       collectedCoins: ctx.coins,
+      collectedResources: ctx.resources,
       finished: false,
       error: '🤔 Команды закончились, а финиш не достигнут!',
     };
@@ -180,7 +262,7 @@ export async function* executeCommands(
 export function findCommand(commands: Command[], id: string): Command | null {
   for (const c of commands) {
     if (c.id === id) return c;
-    if ((c.type === 'loop' || c.type === 'if_color') && c.children) {
+    if ((c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children) {
       const found = findCommand(c.children, id);
       if (found) return found;
     }
@@ -192,7 +274,7 @@ export function removeCommand(commands: Command[], id: string): Command[] {
   return commands
     .filter(c => c.id !== id)
     .map(c =>
-      (c.type === 'loop' || c.type === 'if_color') && c.children
+      (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children
         ? { ...c, children: removeCommand(c.children, id) }
         : c
     );
@@ -212,7 +294,7 @@ export function insertNear(
     return result;
   }
   return commands.map(c =>
-    (c.type === 'loop' || c.type === 'if_color') && c.children
+    (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children
       ? { ...c, children: insertNear(c.children, targetId, position, newCmd) }
       : c
   );
@@ -224,10 +306,10 @@ export function insertInContainer(
   newCmd: Command,
 ): Command[] {
   return commands.map(c => {
-    if (c.id === containerId && (c.type === 'loop' || c.type === 'if_color')) {
+    if (c.id === containerId && (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced')) {
       return { ...c, children: [...(c.children ?? []), newCmd] };
     }
-    if ((c.type === 'loop' || c.type === 'if_color') && c.children) {
+    if ((c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children) {
       return { ...c, children: insertInContainer(c.children, containerId, newCmd) };
     }
     return c;

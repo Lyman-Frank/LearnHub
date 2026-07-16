@@ -26,6 +26,8 @@ function createCommand(type: CommandType): Command {
     type,
     ...(type === 'loop' ? { repeat: 3, children: [] } : {}),
     ...(type === 'if_color' ? { conditionColor: 'red', children: [] } : {}),
+    ...(type === 'while' ? { whileCondition: { type: 'free_ahead' }, children: [] } : {}),
+    ...(type === 'if_advanced' ? { advancedCondition: { operator: 'AND', clauses: [{ type: 'resource_gte', value: 1 }] }, children: [] } : {}),
   };
 }
 
@@ -58,6 +60,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
 
   const [runStatus, setRunStatus] = useState<RunStatus>('idle');
   const [collectedCoins, setCollectedCoins] = useState<string[]>([]);
+  const [collectedResources, setCollectedResources] = useState<string[]>([]);
   const [activeCommandId, setActiveCommandId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [errorCell, setErrorCell] = useState<{ x: number; y: number } | null>(null);
@@ -89,6 +92,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
     setF2Commands([]);
     setRunStatus('idle');
     setCollectedCoins([]);
+    setCollectedResources([]);
     setActiveCommandId(null);
     setErrorMsg(null);
     setErrorCell(null);
@@ -121,7 +125,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
   const handleUpdateLoop = (id: string, repeat: number, functionId?: 'f1' | 'f2') => {
     const update = (cmds: Command[]): Command[] =>
       cmds.map(c =>
-        c.id === id ? { ...c, repeat } : (c.type === 'loop' || c.type === 'if_color') && c.children
+        c.id === id ? { ...c, repeat } : (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children
           ? { ...c, children: update(c.children) }
           : c
       );
@@ -134,7 +138,33 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
   const handleUpdateIfColor = (id: string, color: ColorType, functionId?: 'f1' | 'f2') => {
     const update = (cmds: Command[]): Command[] =>
       cmds.map(c =>
-        c.id === id ? { ...c, conditionColor: color } : (c.type === 'loop' || c.type === 'if_color') && c.children
+        c.id === id ? { ...c, conditionColor: color } : (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children
+          ? { ...c, children: update(c.children) }
+          : c
+      );
+
+    if (functionId === 'f1') setF1Commands(prev => update(prev));
+    else if (functionId === 'f2') setF2Commands(prev => update(prev));
+    else setCommands(prev => update(prev));
+  };
+
+  const handleUpdateWhile = (id: string, condition: any, functionId?: 'f1' | 'f2') => {
+    const update = (cmds: Command[]): Command[] =>
+      cmds.map(c =>
+        c.id === id ? { ...c, whileCondition: condition } : (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children
+          ? { ...c, children: update(c.children) }
+          : c
+      );
+
+    if (functionId === 'f1') setF1Commands(prev => update(prev));
+    else if (functionId === 'f2') setF2Commands(prev => update(prev));
+    else setCommands(prev => update(prev));
+  };
+
+  const handleUpdateIfAdvanced = (id: string, condition: any, functionId?: 'f1' | 'f2') => {
+    const update = (cmds: Command[]): Command[] =>
+      cmds.map(c =>
+        c.id === id ? { ...c, advancedCondition: condition } : (c.type === 'loop' || c.type === 'if_color' || c.type === 'while' || c.type === 'if_advanced') && c.children
           ? { ...c, children: update(c.children) }
           : c
       );
@@ -208,6 +238,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
     const startState = initRobot();
     setRobotState(startState);
     setCollectedCoins([]);
+    setCollectedResources([]);
     setActiveCommandId(null);
     setErrorMsg(null);
     setErrorCell(null);
@@ -221,6 +252,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
 
       setRobotState(result.state);
       setCollectedCoins(result.collectedCoins);
+      setCollectedResources(result.collectedResources);
 
       if (result.error) {
         setErrorMsg(result.error);
@@ -301,6 +333,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
               level={level}
               robotState={robotState}
               collectedCoins={collectedCoins}
+              collectedResources={collectedResources}
               errorCell={errorCell}
             />
           </div>
@@ -362,6 +395,8 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
                 onMove={handleMove}
                 onUpdateLoop={handleUpdateLoop}
                 onUpdateIfColor={handleUpdateIfColor}
+                onUpdateWhile={handleUpdateWhile}
+                onUpdateIfAdvanced={handleUpdateIfAdvanced}
                 onDragStart={() => setIsDragging(true)}
                 isDragging={isDragging}
                 f1Name={f1Name}
@@ -412,6 +447,8 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
                   onMove={handleMove}
                   onUpdateLoop={handleUpdateLoop}
                   onUpdateIfColor={handleUpdateIfColor}
+                  onUpdateWhile={handleUpdateWhile}
+                  onUpdateIfAdvanced={handleUpdateIfAdvanced}
                   onDragStart={() => setIsDragging(true)}
                   isDragging={isDragging}
                   f1Name={f1Name}
@@ -464,6 +501,8 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
                   onMove={handleMove}
                   onUpdateLoop={handleUpdateLoop}
                   onUpdateIfColor={handleUpdateIfColor}
+                  onUpdateWhile={handleUpdateWhile}
+                  onUpdateIfAdvanced={handleUpdateIfAdvanced}
                   onDragStart={() => setIsDragging(true)}
                   isDragging={isDragging}
                   f1Name={f1Name}

@@ -97,6 +97,26 @@ export const COMMAND_META: Record<CommandType, {
     border: 'border-teal-500/40',
     emoji: 'f2',
   },
+  while: {
+    label: 'Пока...',
+    shortLabel: 'Пока',
+    icon: <RefreshCw size={15} strokeWidth={2.5} />,
+    color: 'text-orange-300',
+    bg: 'bg-orange-950/60',
+    bgActive: 'bg-orange-800/80',
+    border: 'border-orange-500/40',
+    emoji: '🔁',
+  },
+  if_advanced: {
+    label: 'Сложное условие',
+    shortLabel: 'Условие+',
+    icon: <HelpCircle size={15} strokeWidth={2.5} />,
+    color: 'text-pink-300',
+    bg: 'bg-pink-950/60',
+    bgActive: 'bg-pink-800/80',
+    border: 'border-pink-500/40',
+    emoji: '⚙️',
+  },
 };
 
 interface CommandPanelProps {

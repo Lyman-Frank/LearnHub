@@ -12,13 +12,14 @@ import {
 } from 'lucide-react';
 
 // ─── Инструменты конструктора ──────────────────────────────
-type Tool = 'wall' | 'start' | 'finish' | 'coin' | 'eraser';
+type Tool = 'wall' | 'start' | 'finish' | 'coin' | 'resource' | 'eraser';
 
 const TOOLS: { id: Tool; label: string; emoji: string; color: string }[] = [
   { id: 'wall',   label: 'Стена',   emoji: '🧱', color: 'border-gray-500 text-gray-300' },
   { id: 'start',  label: 'Старт',   emoji: '🟢', color: 'border-emerald-500 text-emerald-300' },
   { id: 'finish', label: 'Финиш',   emoji: '🏁', color: 'border-yellow-500 text-yellow-300' },
   { id: 'coin',   label: 'Монета',  emoji: '⭐', color: 'border-amber-500 text-amber-300' },
+  { id: 'resource', label: 'Ресурс', emoji: '⚙️', color: 'border-blue-500 text-blue-300' },
   { id: 'eraser', label: 'Ластик',  emoji: '🗑️', color: 'border-rose-500 text-rose-300' },
 ];
 
@@ -33,6 +34,8 @@ function createEmptyLevel(id: number): ManagedLevel {
     finish_position: { x: 4, y: 4 },
     obstacles: [],
     coins: [],
+    resources: [],
+    theme: 'default',
     allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up', 'loop'],
     status: 'draft',
     createdAt: new Date().toISOString(),
@@ -53,6 +56,7 @@ function ConstructorCell({
   const isFinish = level.finish_position.x === col && level.finish_position.y === row;
   const isWall = level.obstacles.some(o => o.x === col && o.y === row);
   const isCoin = level.coins?.some(c => c.x === col && c.y === row);
+  const isResource = level.resources?.some(c => c.x === col && c.y === row);
 
   return (
     <div
@@ -69,6 +73,9 @@ function ConstructorCell({
       {isFinish && !isWall && <FinishSprite size={CELL_SIZE * 0.8} />}
       {isCoin && !isWall && !isFinish && (
         <span style={{ fontSize: CELL_SIZE * 0.4 }}>⭐</span>
+      )}
+      {isResource && !isWall && !isFinish && !isCoin && (
+        <span style={{ fontSize: CELL_SIZE * 0.4 }}>⚙️</span>
       )}
 
       {/* Координаты при наведении */}
@@ -124,9 +131,15 @@ export default function AdminMinigamesPage() {
       level.coins = exists
         ? (level.coins ?? []).filter(c => !(c.x === x && c.y === y))
         : [...(level.coins ?? []), { x, y }];
+    } else if (activeTool === 'resource') {
+      const exists = level.resources?.some(c => c.x === x && c.y === y);
+      level.resources = exists
+        ? (level.resources ?? []).filter(c => !(c.x === x && c.y === y))
+        : [...(level.resources ?? []), { x, y }];
     } else if (activeTool === 'eraser') {
       level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y));
       level.coins = (level.coins ?? []).filter(c => !(c.x === x && c.y === y));
+      level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y));
     }
 
     updateLevel(level);
@@ -274,6 +287,18 @@ export default function AdminMinigamesPage() {
                       className="w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-violet-500 outline-none"
                     />
                   </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">Тема</label>
+                    <select
+                      value={selectedLevel.theme || 'default'}
+                      onChange={e => updateLevel({ ...selectedLevel, theme: e.target.value as any })}
+                      className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-violet-500 outline-none"
+                    >
+                      <option value="default">Default</option>
+                      <option value="zombie">Zombie</option>
+                      <option value="space">Space</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -283,7 +308,9 @@ export default function AdminMinigamesPage() {
                 <div className="flex flex-wrap gap-4">
                   {[
                     { id: 'loop', label: '🔄 Циклы' },
+                    { id: 'while', label: '🔁 Пока (While)' },
                     { id: 'if_color', label: '❓ Условия' },
+                    { id: 'if_advanced', label: '⚙️ Сл. Условия' },
                     { id: 'call_f1', label: '📦 Функция F1' },
                     { id: 'call_f2', label: '📦 Функция F2' }
                   ].map(cmd => {

@@ -4,12 +4,13 @@
 // ═══════════════════════════════════════════════════════════
 import React from 'react';
 import { LevelConfig, RobotState, ColorType } from './types';
-import { RobotSprite, WallSprite, FinishSprite, CoinSprite, StartSprite } from './Sprites';
+import { THEME_REGISTRY } from './ThemeAssets';
 
 interface GameGridProps {
   level: LevelConfig;
   robotState: RobotState;
   collectedCoins: string[];
+  collectedResources: string[];
   errorCell?: { x: number; y: number } | null;
 }
 
@@ -23,10 +24,13 @@ const COLOR_CELL_CLASSES: Record<ColorType, string> = {
   yellow: 'bg-amber-500/25 border-2 border-amber-500/70 shadow-lg shadow-amber-500/25 text-amber-200',
 };
 
-export function GameGrid({ level, robotState, collectedCoins, errorCell }: GameGridProps) {
+export function GameGrid({ level, robotState, collectedCoins, collectedResources, errorCell }: GameGridProps) {
   const { rows, cols } = level.grid_size;
   const gridW = cols * CELL_SIZE;
   const gridH = rows * CELL_SIZE;
+
+  const activeTheme = THEME_REGISTRY[level.theme || 'default'] || THEME_REGISTRY['default'];
+  const { Robot, Wall, Finish, Coin, Start, Resource, Background, GridColor } = activeTheme;
 
   return (
     <div
@@ -34,7 +38,7 @@ export function GameGrid({ level, robotState, collectedCoins, errorCell }: GameG
       style={{
         width: gridW,
         height: gridH,
-        background: 'linear-gradient(135deg, #0b0718 0%, #130a2a 100%)',
+        background: Background,
         flexShrink: 0,
       }}
     >
@@ -42,7 +46,7 @@ export function GameGrid({ level, robotState, collectedCoins, errorCell }: GameG
       <svg className="absolute inset-0 pointer-events-none" width={gridW} height={gridH}>
         <defs>
           <pattern id="gameGrid" width={CELL_SIZE} height={CELL_SIZE} patternUnits="userSpaceOnUse">
-            <path d={`M ${CELL_SIZE} 0 L 0 0 0 ${CELL_SIZE}`} fill="none" stroke="rgba(139,92,246,0.08)" strokeWidth="1"/>
+            <path d={`M ${CELL_SIZE} 0 L 0 0 0 ${CELL_SIZE}`} fill="none" stroke={GridColor} strokeWidth="1"/>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#gameGrid)"/>
@@ -55,9 +59,11 @@ export function GameGrid({ level, robotState, collectedCoins, errorCell }: GameG
           const isFinish  = level.finish_position.x === col && level.finish_position.y === row;
           const isWall    = level.obstacles.some(o => o.x === col && o.y === row);
           const isRobot   = robotState.x === col && robotState.y === row;
-          const coinKey   = `${col}:${row}`;
+          const cellKey   = `${col}:${row}`;
           const hasCoin   = level.coins?.some(c => c.x === col && c.y === row);
-          const coinDone  = collectedCoins.includes(coinKey);
+          const hasResource = level.resources?.some(c => c.x === col && c.y === row);
+          const coinDone  = collectedCoins.includes(cellKey);
+          const resourceDone = collectedResources.includes(cellKey);
           const isError   = errorCell?.x === col && errorCell?.y === row;
 
           // Цветная подложка ячейки
@@ -95,21 +101,28 @@ export function GameGrid({ level, robotState, collectedCoins, errorCell }: GameG
 
               {/* Старт */}
               {isStart && !isRobot && !isWall && (
-                <StartSprite size={CELL_SIZE * 0.55} />
+                <Start size={CELL_SIZE * 0.55} />
               )}
 
               {/* Финиш */}
               {isFinish && !isRobot && (
-                <FinishSprite size={CELL_SIZE * 0.8} />
+                <Finish size={CELL_SIZE * 0.8} />
               )}
 
               {/* Стена */}
-              {isWall && <WallSprite size={CELL_SIZE * 0.88} />}
+              {isWall && <Wall size={CELL_SIZE * 0.88} />}
 
               {/* Монета */}
               {hasCoin && !isWall && !isFinish && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <CoinSprite size={CELL_SIZE * 0.38} collected={coinDone} />
+                  <Coin size={CELL_SIZE * 0.38} collected={coinDone} />
+                </div>
+              )}
+
+              {/* Ресурс */}
+              {hasResource && !isWall && !isFinish && !hasCoin && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Resource size={CELL_SIZE * 0.45} collected={resourceDone} />
                 </div>
               )}
 
@@ -121,7 +134,7 @@ export function GameGrid({ level, robotState, collectedCoins, errorCell }: GameG
               {/* Робот */}
               {isRobot && (
                 <div className="relative z-10 flex items-center justify-center" style={{ width: CELL_SIZE * 0.9, height: CELL_SIZE * 0.9 }}>
-                  <RobotSprite size={CELL_SIZE * 0.82} />
+                  <Robot size={CELL_SIZE * 0.82} />
                   {/* Стрелочка направления последнего шага */}
                   {robotState.lastMove && (
                     <div

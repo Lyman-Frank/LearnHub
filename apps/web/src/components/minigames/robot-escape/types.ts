@@ -6,7 +6,22 @@ export type MovementCommand = 'move_up' | 'move_down' | 'move_left' | 'move_righ
 
 export type ColorType = 'red' | 'blue' | 'green' | 'yellow';
 
-export type CommandType = MovementCommand | 'loop' | 'if_color' | 'call_f1' | 'call_f2';
+export type CommandType = MovementCommand | 'loop' | 'if_color' | 'call_f1' | 'call_f2' | 'while' | 'if_advanced';
+
+export type ThemeType = 'default' | 'zombie' | 'space';
+
+export type ConditionOperator = 'AND' | 'OR';
+export type ConditionType = 'color' | 'resource_gte' | 'free_ahead';
+
+export interface ConditionClause {
+  type: ConditionType;
+  value?: string | number; // Для цвета ('red'), для ресурсов (число >=)
+}
+
+export interface AdvancedCondition {
+  operator: ConditionOperator;
+  clauses: ConditionClause[];
+}
 
 export interface Position {
   x: number;
@@ -31,6 +46,8 @@ export interface LevelConfig {
   obstacles: Position[];
   coins?: Position[];
   colored_cells?: ColoredCell[];
+  theme?: ThemeType;
+  resources?: Position[]; // Предметы на карте, которые нужно собирать
   allowed_commands: CommandType[];
   /** Обучающее сообщение, показывающееся при старте уровня */
   tutorial?: {
@@ -44,7 +61,9 @@ export interface Command {
   type: CommandType;
   children?: Command[];
   repeat?: number;          // Для циклов (loop)
-  conditionColor?: ColorType; // Для условий (if_color)
+  conditionColor?: ColorType; // Для простых условий (if_color)
+  advancedCondition?: AdvancedCondition; // Для сложных условий (if_advanced)
+  whileCondition?: ConditionClause; // Для цикла while
 }
 
 /** Определение функции */
@@ -58,6 +77,7 @@ export interface FunctionDef {
 export interface StepResult {
   state: RobotState;
   collectedCoins: string[];
+  collectedResources: string[]; // Позиции собранных ресурсов ("x:y")
   error?: string;
   finished: boolean;
 }
