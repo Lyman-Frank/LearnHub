@@ -1,48 +1,60 @@
 // ═══════════════════════════════════════════════════════════
-// ТИПЫ ДАННЫХ — v2.0 (абсолютное движение)
+// ТИПЫ ДАННЫХ — v3.0 (Условия и Функции)
 // ═══════════════════════════════════════════════════════════
 
-/** Базовые команды движения (абсолютные направления) */
 export type MovementCommand = 'move_up' | 'move_down' | 'move_left' | 'move_right';
 
-/** Все типы команд */
-export type CommandType = MovementCommand | 'loop';
+export type ColorType = 'red' | 'blue' | 'green' | 'yellow';
 
-/** Позиция на сетке */
+export type CommandType = MovementCommand | 'loop' | 'if_color' | 'call_f1' | 'call_f2';
+
 export interface Position {
-  x: number; // колонка (0 = левая)
-  y: number; // строка  (0 = верхняя)
+  x: number;
+  y: number;
 }
 
-/** Состояние робота (без направления — движение абсолютное) */
 export interface RobotState extends Position {
   lastMove?: MovementCommand;
 }
 
-/** JSON-конфигурация уровня */
+export interface ColoredCell extends Position {
+  color: ColorType;
+}
+
 export interface LevelConfig {
   level_id: number;
   title: string;
   description: string;
   grid_size: { rows: number; cols: number };
-  start_position: { x: number; y: number; direction?: string };
+  start_position: { x: number; y: number };
   finish_position: Position;
   obstacles: Position[];
   coins?: Position[];
+  colored_cells?: ColoredCell[];
   allowed_commands: CommandType[];
+  /** Обучающее сообщение, показывающееся при старте уровня */
+  tutorial?: {
+    title: string;
+    content: string;
+  };
 }
 
-/** Команда в алгоритме */
 export interface Command {
   id: string;
   type: CommandType;
-  /** Только для loop: вложенные команды */
   children?: Command[];
-  /** Только для loop: количество повторений */
-  repeat?: number;
+  repeat?: number;          // Для циклов (loop)
+  conditionColor?: ColorType; // Для условий (if_color)
 }
 
-/** Результат одного шага */
+/** Определение функции */
+export interface FunctionDef {
+  id: 'f1' | 'f2';
+  name: string;
+  color: string;
+  commands: Command[];
+}
+
 export interface StepResult {
   state: RobotState;
   collectedCoins: string[];
@@ -50,10 +62,8 @@ export interface StepResult {
   finished: boolean;
 }
 
-/** Статус выполнения */
 export type RunStatus = 'idle' | 'running' | 'success' | 'error';
 
-/** Карточка игры в каталоге */
 export interface GameMeta {
   id: string;
   title: string;
@@ -64,25 +74,23 @@ export interface GameMeta {
   available: boolean;
 }
 
-/** Статус публикации (Admin) */
 export type LevelPublishStatus = 'draft' | 'published' | 'archived';
 
-/** Уровень с метаданными для Admin */
 export interface ManagedLevel extends LevelConfig {
   status: LevelPublishStatus;
   createdAt: string;
   updatedAt: string;
 }
 
-/** Информация о перетаскивании */
 export interface DragInfo {
-  source: 'panel' | 'list';
-  commandType?: CommandType;  // из панели
-  commandId?: string;         // из списка
+  source: 'panel' | 'list' | 'f1' | 'f2';
+  commandType?: CommandType;
+  commandId?: string;
+  functionId?: 'f1' | 'f2';
 }
 
-/** Цель сброса (drop target) */
 export interface DropTarget {
-  id: string;           // id целевой команды (или 'root-end')
+  id: string; // id целевой команды, 'root-end', 'f1-end', 'f2-end'
   position: 'before' | 'after' | 'inside';
+  functionId?: 'f1' | 'f2'; // если дроп идет внутрь функции
 }
