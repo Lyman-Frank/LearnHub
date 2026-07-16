@@ -33,7 +33,7 @@ function createEmptyLevel(id: number): ManagedLevel {
     finish_position: { x: 4, y: 4 },
     obstacles: [],
     coins: [],
-    allowed_commands: ['forward', 'turn_left', 'turn_right', 'loop'],
+    allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up', 'loop'],
     status: 'draft',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
