@@ -277,6 +277,47 @@ export default function AdminMinigamesPage() {
                 </div>
               </div>
 
+              {/* Доступные блоки / Команды */}
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                <label className="text-xs text-slate-400 block mb-3 font-semibold uppercase tracking-wider">Дополнительные блоки</label>
+                <div className="flex flex-wrap gap-4">
+                  {[
+                    { id: 'loop', label: '🔄 Циклы' },
+                    { id: 'if_color', label: '❓ Условия' },
+                    { id: 'call_f1', label: '📦 Функция F1' },
+                    { id: 'call_f2', label: '📦 Функция F2' }
+                  ].map(cmd => {
+                    const isEnabled = selectedLevel.allowed_commands.includes(cmd.id as any);
+                    return (
+                      <label key={cmd.id} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                        <input
+                          type="checkbox"
+                          checked={isEnabled}
+                          onChange={(e) => {
+                            const current = selectedLevel.allowed_commands;
+                            // Базовые команды движения оставляем всегда
+                            const baseCmds = current.filter(c => ['move_up', 'move_down', 'move_left', 'move_right'].includes(c));
+                            const advancedCmds = current.filter(c => !['move_up', 'move_down', 'move_left', 'move_right'].includes(c));
+                            
+                            let newAdvanced = [];
+                            if (e.target.checked) {
+                              newAdvanced = [...advancedCmds, cmd.id];
+                            } else {
+                              newAdvanced = advancedCmds.filter(c => c !== cmd.id);
+                            }
+                            
+                            updateLevel({ ...selectedLevel, allowed_commands: [...baseCmds, ...newAdvanced] as any[] });
+                          }}
+                          className="w-4 h-4 rounded border-slate-700 text-violet-500 focus:ring-violet-500/20 bg-slate-800"
+                        />
+                        <span className="text-sm text-slate-300 font-medium">{cmd.label}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+                <p className="text-[10px] text-slate-500 mt-3">Команды движения (стрелки вверх, вниз, влево, вправо) доступны по умолчанию на всех уровнях.</p>
+              </div>
+
               {/* Инструменты */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-slate-400 mr-1">Инструмент:</span>

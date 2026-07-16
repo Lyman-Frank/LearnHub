@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// УРОВНИ v3.0 — 10 Прогрессивных уровней с Условиями и Функциями
+// УРОВНИ v3.1 — Базовые движения всегда доступны
 // ═══════════════════════════════════════════════════════════
 import { LevelConfig } from './types';
 
@@ -13,7 +13,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
     finish_position: { x: 4, y: 2 },
     obstacles: [],
     coins: [{ x: 2, y: 2 }],
-    allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right'],
     tutorial: {
       title: 'Добро пожаловать в Побег Робота!',
       content: 'Твоя цель — провести робота к финишу 🏁 с помощью алгоритма из команд движения. Кликай по кнопкам или перетаскивай их прямо в поле алгоритма справа!'
@@ -31,7 +31,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 3, y: 2 }, { x: 3, y: 3 }, { x: 3, y: 4 }
     ],
     coins: [{ x: 0, y: 4 }, { x: 4, y: 0 }],
-    allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right'],
   },
   {
     level_id: 3,
@@ -44,7 +44,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 1, y: 1 }, { x: 2, y: 1 }, { x: 3, y: 2 }, { x: 4, y: 4 }
     ],
     coins: [{ x: 2, y: 2 }, { x: 4, y: 2 }],
-    allowed_commands: ['move_right', 'move_down', 'loop'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop'],
     tutorial: {
       title: '🔄 Использование Циклов',
       content: 'Цикл повторяет вложенные в него команды несколько раз. Перетащи нужные движения внутрь блока Цикла и настрой количество повторений с помощью кнопок − и +.'
@@ -65,7 +65,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 3, y: 2, color: 'green' }
     ],
     coins: [{ x: 2, y: 2 }],
-    allowed_commands: ['move_right', 'move_down', 'move_up', 'if_color'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color'],
     tutorial: {
       title: '❓ Блоки Условий (Если)',
       content: 'Блок "Если на цвете..." проверяет, стоит ли робот на плитке выбранного цвета (красный, синий, зелёный, жёлтый). Если цвет совпадает, робот выполнит все команды внутри этого блока!'
@@ -79,13 +79,13 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
     start_position: { x: 0, y: 2 },
     finish_position: { x: 5, y: 2 },
     obstacles: [
-      { x: 2, y: 2 } // Стена по центру пути
+      { x: 2, y: 2 }
     ],
     colored_cells: [
       { x: 1, y: 2, color: 'red' }
     ],
     coins: [{ x: 2, y: 1 }, { x: 2, y: 3 }],
-    allowed_commands: ['move_right', 'move_down', 'move_up', 'if_color', 'loop'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color'],
   },
   {
     level_id: 6,
@@ -102,7 +102,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 3, y: 2, color: 'yellow' }
     ],
     coins: [{ x: 2, y: 1 }, { x: 4, y: 3 }],
-    allowed_commands: ['move_right', 'move_down', 'move_up', 'if_color'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color'],
   },
   {
     level_id: 7,
@@ -115,7 +115,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 2, y: 0 }, { x: 2, y: 1 }, { x: 3, y: 3 }
     ],
     coins: [{ x: 1, y: 2 }, { x: 4, y: 4 }],
-    allowed_commands: ['move_right', 'move_down', 'call_f1'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color', 'call_f1'],
     tutorial: {
       title: '📦 Что такое Функции?',
       content: 'Функция (F1) — это вспомогательный список команд. Когда вы вызываете F1 в основном алгоритме, робот выполняет все команды из ячейки функции F1. Вы можете переименовать её, нажав кнопку редактирования имени!'
@@ -132,7 +132,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 1, y: 1 }, { x: 3, y: 3 }, { x: 4, y: 4 }
     ],
     coins: [{ x: 0, y: 3 }, { x: 3, y: 0 }],
-    allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up', 'call_f1', 'call_f2'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color', 'call_f1', 'call_f2'],
   },
   {
     level_id: 9,
@@ -149,7 +149,7 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 3, y: 3, color: 'red' }
     ],
     coins: [{ x: 2, y: 1 }, { x: 4, y: 5 }],
-    allowed_commands: ['move_right', 'move_down', 'move_up', 'if_color', 'call_f1'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color', 'call_f1', 'call_f2'],
   },
   {
     level_id: 10,
@@ -169,6 +169,6 @@ export const DEFAULT_LEVELS: LevelConfig[] = [
       { x: 6, y: 4, color: 'green' }
     ],
     coins: [{ x: 3, y: 1 }, { x: 6, y: 2 }, { x: 1, y: 6 }],
-    allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up', 'loop', 'if_color', 'call_f1', 'call_f2'],
+    allowed_commands: ['move_up', 'move_down', 'move_left', 'move_right', 'loop', 'if_color', 'call_f1', 'call_f2'],
   }
 ];
