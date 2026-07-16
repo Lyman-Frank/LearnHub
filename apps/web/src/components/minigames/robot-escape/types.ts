@@ -1,9 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// ТИПЫ ДАННЫХ — Игра «Побег Робота»
+// ТИПЫ ДАННЫХ — v2.0 (абсолютное движение)
 // ═══════════════════════════════════════════════════════════
 
-/** Направление, куда смотрит робот */
-export type Direction = 'right' | 'down' | 'left' | 'up';
+/** Базовые команды движения (абсолютные направления) */
+export type MovementCommand = 'move_up' | 'move_down' | 'move_left' | 'move_right';
+
+/** Все типы команд */
+export type CommandType = MovementCommand | 'loop';
 
 /** Позиция на сетке */
 export interface Position {
@@ -11,32 +14,27 @@ export interface Position {
   y: number; // строка  (0 = верхняя)
 }
 
-/** Полное состояние робота */
+/** Состояние робота (без направления — движение абсолютное) */
 export interface RobotState extends Position {
-  direction: Direction;
+  lastMove?: MovementCommand;
 }
 
-/** JSON-конфигурация одного уровня */
+/** JSON-конфигурация уровня */
 export interface LevelConfig {
   level_id: number;
   title: string;
   description: string;
   grid_size: { rows: number; cols: number };
-  start_position: { x: number; y: number; direction: Direction };
+  start_position: { x: number; y: number; direction?: string };
   finish_position: Position;
   obstacles: Position[];
-  /** Монеты-бонусы (опционально) */
   coins?: Position[];
-  /** Разрешённые команды для этого уровня */
   allowed_commands: CommandType[];
 }
 
-/** Типы базовых команд */
-export type CommandType = 'forward' | 'turn_left' | 'turn_right' | 'loop';
-
-/** Команда в алгоритме пользователя */
+/** Команда в алгоритме */
 export interface Command {
-  id: string;        // уникальный ID для DnD и React key
+  id: string;
   type: CommandType;
   /** Только для loop: вложенные команды */
   children?: Command[];
@@ -44,18 +42,18 @@ export interface Command {
   repeat?: number;
 }
 
-/** Результат одного шага выполнения */
+/** Результат одного шага */
 export interface StepResult {
   state: RobotState;
-  collectedCoins: string[]; // IDs монет
+  collectedCoins: string[];
   error?: string;
   finished: boolean;
 }
 
-/** Статус выполнения алгоритма */
+/** Статус выполнения */
 export type RunStatus = 'idle' | 'running' | 'success' | 'error';
 
-/** Мета-описание карточки игры */
+/** Карточка игры в каталоге */
 export interface GameMeta {
   id: string;
   title: string;
@@ -66,12 +64,25 @@ export interface GameMeta {
   available: boolean;
 }
 
-/** Статус публикации уровня (для Admin) */
+/** Статус публикации (Admin) */
 export type LevelPublishStatus = 'draft' | 'published' | 'archived';
 
-/** Уровень с мета-данными для Admin */
+/** Уровень с метаданными для Admin */
 export interface ManagedLevel extends LevelConfig {
   status: LevelPublishStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Информация о перетаскивании */
+export interface DragInfo {
+  source: 'panel' | 'list';
+  commandType?: CommandType;  // из панели
+  commandId?: string;         // из списка
+}
+
+/** Цель сброса (drop target) */
+export interface DropTarget {
+  id: string;           // id целевой команды (или 'root-end')
+  position: 'before' | 'after' | 'inside';
 }

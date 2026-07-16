@@ -29,8 +29,11 @@ export default function RobotEscapePage() {
         <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">
           Собери алгоритм из команд в правой панели и нажми{' '}
           <span className="text-violet-400 font-semibold">«Запустить»</span>, чтобы привести
-          робота к финишу. Собирай звёзды ⭐ и избегай стен! Используй{' '}
-          <span className="text-amber-400 font-semibold">Цикл</span>, чтобы не повторять одни и те же команды снова и снова.
+          робота к финишу. Используй стрелки{' '}
+          <span className="text-emerald-400 font-semibold">↑↓←→</span> для перемещения.
+          Собирай звёзды ⭐ и избегай стен! Перетаскивай команды между собой,
+          а{' '}
+          <span className="text-amber-400 font-semibold">Цикл</span> позволяет повторять блок команд много раз.
         </p>
       </div>
 
