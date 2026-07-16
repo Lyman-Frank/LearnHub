@@ -372,6 +372,7 @@ export class ProgressService {
         createdAt: true,
         xp: true,
         streak: true,
+        subscriptionExpiresAt: true,
         ownedItems: {
           where: { isEquipped: true },
           include: { item: true }
