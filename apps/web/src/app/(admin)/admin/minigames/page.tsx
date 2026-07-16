@@ -5,7 +5,7 @@
 import React, { useState, useCallback } from 'react';
 import { LevelConfig, ManagedLevel, Position, LevelPublishStatus } from '@/components/minigames/robot-escape/types';
 import { DEFAULT_LEVELS } from '@/components/minigames/robot-escape/levels';
-import { WallSprite, FinishSprite, StartSprite } from '@/components/minigames/robot-escape/Sprites';
+import { THEME_REGISTRY } from '@/components/minigames/robot-escape/ThemeAssets';
 import {
   Plus, Trash2, Globe, EyeOff, Save, Play, RotateCcw,
   ChevronRight, Layers, Settings2, LayoutGrid, Eye,
@@ -35,6 +35,7 @@ function createEmptyLevel(id: number): ManagedLevel {
     obstacles: [],
     coins: [],
     resources: [],
+    required_resources: 0,
     theme: 'default',
     allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up', 'loop'],
     status: 'draft',
@@ -58,6 +59,10 @@ function ConstructorCell({
   const isCoin = level.coins?.some(c => c.x === col && c.y === row);
   const isResource = level.resources?.some(c => c.x === col && c.y === row);
 
+  const themeKey = level.theme || 'default';
+  const theme = THEME_REGISTRY[themeKey] || THEME_REGISTRY['default'];
+  const { Wall, Finish, Start, Resource, Coin } = theme;
+
   return (
     <div
       onClick={() => onCellClick(col, row)}
@@ -68,14 +73,14 @@ function ConstructorCell({
       `}
       style={{ width: CELL_SIZE, height: CELL_SIZE }}
     >
-      {isWall && <WallSprite size={CELL_SIZE * 0.8} />}
-      {isStart && !isWall && <StartSprite size={CELL_SIZE * 0.7} />}
-      {isFinish && !isWall && <FinishSprite size={CELL_SIZE * 0.8} />}
+      {isWall && <Wall size={CELL_SIZE * 0.8} />}
+      {isStart && !isWall && <Start size={CELL_SIZE * 0.7} />}
+      {isFinish && !isWall && <Finish size={CELL_SIZE * 0.8} />}
       {isCoin && !isWall && !isFinish && (
-        <span style={{ fontSize: CELL_SIZE * 0.4 }}>⭐</span>
+        <Coin size={CELL_SIZE * 0.5} />
       )}
       {isResource && !isWall && !isFinish && !isCoin && (
-        <span style={{ fontSize: CELL_SIZE * 0.4 }}>⚙️</span>
+        <Resource size={CELL_SIZE * 0.6} />
       )}
 
       {/* Координаты при наведении */}
@@ -88,21 +93,37 @@ function ConstructorCell({
 
 // ═══════════════════════════════════════════════════════════
 export default function AdminMinigamesPage() {
-  // Загружаем дефолтные уровни как начальное состояние
-  const [levels, setLevels] = useState<ManagedLevel[]>(() =>
-    DEFAULT_LEVELS.map(l => ({
-      ...l,
-      status: 'published' as LevelPublishStatus,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }))
-  );
+  const [levels, setLevels] = useState<ManagedLevel[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const [selectedLevelId, setSelectedLevelId] = useState<number>(levels[0]?.level_id ?? 1);
+  React.useEffect(() => {
+    const saved = localStorage.getItem('robot_escape_levels');
+    if (saved) {
+      try {
+        setLevels(JSON.parse(saved));
+      } catch (e) {}
+    } else {
+      setLevels(DEFAULT_LEVELS.map(l => ({
+        ...l,
+        status: 'published' as LevelPublishStatus,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })));
+    }
+    setIsLoaded(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('robot_escape_levels', JSON.stringify(levels));
+    }
+  }, [levels, isLoaded]);
+
+  const [selectedLevelId, setSelectedLevelId] = useState<number>(1);
   const [activeTool, setActiveTool] = useState<Tool>('wall');
   const [activeTab, setActiveTab] = useState<'editor' | 'moderation'>('editor');
 
-  const selectedLevel = levels.find(l => l.level_id === selectedLevelId) ?? levels[0];
+  const selectedLevel = levels.find(l => l.level_id === selectedLevelId) || levels[0];
 
   // Обновить уровень в списке
   const updateLevel = useCallback((updated: ManagedLevel) => {
@@ -121,17 +142,20 @@ export default function AdminMinigamesPage() {
         : [...level.obstacles, { x, y }];
     } else if (activeTool === 'start') {
       level.start_position = { ...level.start_position, x, y };
-      // Убрать из препятствий/финиша если совпало
       level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y));
+      level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y));
     } else if (activeTool === 'finish') {
       level.finish_position = { x, y };
       level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y));
+      level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y));
     } else if (activeTool === 'coin') {
       const exists = level.coins?.some(c => c.x === x && c.y === y);
       level.coins = exists
         ? (level.coins ?? []).filter(c => !(c.x === x && c.y === y))
         : [...(level.coins ?? []), { x, y }];
     } else if (activeTool === 'resource') {
+      if (x === level.start_position.x && y === level.start_position.y) return;
+      if (x === level.finish_position.x && y === level.finish_position.y) return;
       const exists = level.resources?.some(c => c.x === x && c.y === y);
       level.resources = exists
         ? (level.resources ?? []).filter(c => !(c.x === x && c.y === y))
@@ -167,6 +191,8 @@ export default function AdminMinigamesPage() {
         : l
     ));
   };
+
+  if (!isLoaded) return null;
 
   return (
     <div className="space-y-6">
@@ -268,7 +294,7 @@ export default function AdminMinigamesPage() {
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-violet-500 outline-none"
                   />
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-wrap">
                   <div>
                     <label className="text-xs text-slate-400 block mb-1">Строк</label>
                     <input
@@ -285,6 +311,15 @@ export default function AdminMinigamesPage() {
                       value={selectedLevel.grid_size.cols}
                       onChange={e => updateLevel({ ...selectedLevel, grid_size: { ...selectedLevel.grid_size, cols: +e.target.value } })}
                       className="w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-violet-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">Треб. Ресурсов (для финиша)</label>
+                    <input
+                      type="number" min={0} max={20}
+                      value={selectedLevel.required_resources || 0}
+                      onChange={e => updateLevel({ ...selectedLevel, required_resources: +e.target.value })}
+                      className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-violet-500 outline-none"
                     />
                   </div>
                   <div>
@@ -436,6 +471,7 @@ export default function AdminMinigamesPage() {
                   <th className="text-left text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">ID</th>
                   <th className="text-left text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">Название</th>
                   <th className="text-left text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">Сетка</th>
+                  <th className="text-left text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">Тема</th>
                   <th className="text-left text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">Статус</th>
                   <th className="text-left text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">Обновлён</th>
                   <th className="text-right text-xs text-slate-400 font-semibold uppercase tracking-wider px-5 py-3">Действия</th>
@@ -451,6 +487,9 @@ export default function AdminMinigamesPage() {
                     </td>
                     <td className="px-5 py-4 text-slate-400 font-mono text-xs">
                       {level.grid_size.rows}×{level.grid_size.cols}
+                    </td>
+                    <td className="px-5 py-4 text-slate-400 font-mono text-xs">
+                      {level.theme || 'default'}
                     </td>
                     <td className="px-5 py-4">
                       <span className={`

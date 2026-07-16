@@ -216,7 +216,10 @@ async function* executeInner(
       ctx.resources.push(cellKey);
     }
 
-    const finished = isAtFinish(ctx.state, level);
+    const atFinish = isAtFinish(ctx.state, level);
+    const hasEnoughResources = !level.required_resources || ctx.resources.length >= level.required_resources;
+    const finished = atFinish && hasEnoughResources;
+    
     yield { state: { ...ctx.state }, collectedCoins: [...ctx.coins], collectedResources: [...ctx.resources], finished };
 
     if (finished) {
@@ -247,12 +250,19 @@ export async function* executeCommands(
   yield* executeInner(mainCommands, ctx, level, delayMs);
 
   if (!ctx.done) {
+    const atFinish = isAtFinish(ctx.state, level);
+    let errorMsg = '🤔 Команды закончились, а финиш не достигнут!';
+    
+    if (atFinish && level.required_resources && ctx.resources.length < level.required_resources) {
+      errorMsg = `🚧 Не хватает ресурсов для финиша! Собрано ${ctx.resources.length}/${level.required_resources}`;
+    }
+
     yield {
       state: ctx.state,
       collectedCoins: ctx.coins,
       collectedResources: ctx.resources,
       finished: false,
-      error: '🤔 Команды закончились, а финиш не достигнут!',
+      error: errorMsg,
     };
   }
 }

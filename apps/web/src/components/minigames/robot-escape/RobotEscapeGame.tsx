@@ -36,9 +36,24 @@ interface RobotEscapeGameProps {
 }
 
 export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
-  const levels = customLevel ? [customLevel] : DEFAULT_LEVELS;
+  const [levelsState, setLevelsState] = useState<LevelConfig[]>(customLevel ? [customLevel] : DEFAULT_LEVELS);
   const [levelIdx, setLevelIdx] = useState(0);
-  const level = levels[levelIdx];
+  const level = levelsState[levelIdx] || levelsState[0];
+
+  useEffect(() => {
+    if (!customLevel && typeof window !== 'undefined') {
+      const saved = localStorage.getItem('robot_escape_levels');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const published = parsed.filter((l: any) => l.status === 'published');
+          if (published.length > 0) {
+            setLevelsState(published);
+          }
+        } catch (e) {}
+      }
+    }
+  }, [customLevel]);
 
   const initRobot = (): RobotState => ({
     x: level.start_position.x,
@@ -85,7 +100,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
   // ─── Сброс ─────────────────────────────────────────────
   const handleReset = useCallback(() => {
     cancelRef.current = true;
-    const l = levels[levelIdx];
+    const l = levelsState[levelIdx] || levelsState[0];
     setRobotState({ x: l.start_position.x, y: l.start_position.y });
     setCommands([]);
     setF1Commands([]);
@@ -97,7 +112,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
     setErrorMsg(null);
     setErrorCell(null);
     setShowSuccess(false);
-  }, [levelIdx, levels]);
+  }, [levelIdx, levelsState]);
 
   // ─── Смена уровня ───────────────────────────────────────
   const switchLevel = (idx: number) => {
@@ -310,10 +325,10 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
               <ChevronLeft size={16} />
             </button>
             <span className="text-xs text-slate-300 font-mono font-bold px-2">
-              {levelIdx + 1} / {levels.length}
+              {levelIdx + 1} / {levelsState.length}
             </span>
             <button
-              disabled={levelIdx === levels.length - 1 || isRunning}
+              disabled={levelIdx === levelsState.length - 1 || isRunning}
               onClick={() => switchLevel(levelIdx + 1)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 transition-all cursor-pointer"
             >
@@ -569,7 +584,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
           commandCount={commands.length}
           onRestart={handleReset}
           onNextLevel={
-            levelIdx < levels.length - 1
+            levelIdx < levelsState.length - 1
               ? () => { setShowSuccess(false); switchLevel(levelIdx + 1); }
               : undefined
           }

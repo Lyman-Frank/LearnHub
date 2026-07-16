@@ -48,6 +48,7 @@ export interface LevelConfig {
   colored_cells?: ColoredCell[];
   theme?: ThemeType;
   resources?: Position[]; // Предметы на карте, которые нужно собирать
+  required_resources?: number; // Сколько ресурсов нужно собрать для финиша
   allowed_commands: CommandType[];
   /** Обучающее сообщение, показывающееся при старте уровня */
   tutorial?: {
