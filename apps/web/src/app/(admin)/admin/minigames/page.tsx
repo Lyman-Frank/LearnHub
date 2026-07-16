@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 // ─── Инструменты конструктора ──────────────────────────────
-type Tool = 'wall' | 'start' | 'finish' | 'coin' | 'resource' | 'eraser';
+type Tool = 'wall' | 'start' | 'finish' | 'coin' | 'resource' | 'hazard' | 'eraser';
 
 const TOOLS: { id: Tool; label: string; emoji: string; color: string }[] = [
   { id: 'wall',   label: 'Стена',   emoji: '🧱', color: 'border-gray-500 text-gray-300' },
@@ -20,6 +20,7 @@ const TOOLS: { id: Tool; label: string; emoji: string; color: string }[] = [
   { id: 'finish', label: 'Финиш',   emoji: '🏁', color: 'border-yellow-500 text-yellow-300' },
   { id: 'coin',   label: 'Монета',  emoji: '⭐', color: 'border-amber-500 text-amber-300' },
   { id: 'resource', label: 'Ресурс', emoji: '⚙️', color: 'border-blue-500 text-blue-300' },
+  { id: 'hazard', label: 'Угроза',  emoji: '💀', color: 'border-rose-700 text-rose-500' },
   { id: 'eraser', label: 'Ластик',  emoji: '🗑️', color: 'border-rose-500 text-rose-300' },
 ];
 
@@ -35,6 +36,7 @@ function createEmptyLevel(id: number): ManagedLevel {
     obstacles: [],
     coins: [],
     resources: [],
+    hazards: [],
     required_resources: 0,
     theme: 'default',
     allowed_commands: ['move_right', 'move_down', 'move_left', 'move_up', 'loop'],
@@ -58,10 +60,11 @@ function ConstructorCell({
   const isWall = level.obstacles.some(o => o.x === col && o.y === row);
   const isCoin = level.coins?.some(c => c.x === col && c.y === row);
   const isResource = level.resources?.some(c => c.x === col && c.y === row);
+  const isHazard = level.hazards?.some(h => h.x === col && h.y === row);
 
   const themeKey = level.theme || 'default';
   const theme = THEME_REGISTRY[themeKey] || THEME_REGISTRY['default'];
-  const { Wall, Finish, Start, Resource, Coin } = theme;
+  const { Wall, Finish, Start, Resource, Coin, Hazard } = theme;
 
   return (
     <div
@@ -79,8 +82,11 @@ function ConstructorCell({
       {isCoin && !isWall && !isFinish && (
         <Coin size={CELL_SIZE * 0.5} />
       )}
-      {isResource && !isWall && !isFinish && !isCoin && (
+      {isResource && !isWall && !isFinish && !isCoin && !isHazard && (
         <Resource size={CELL_SIZE * 0.6} />
+      )}
+      {isHazard && !isWall && !isFinish && !isStart && !isCoin && !isResource && (
+        <Hazard size={CELL_SIZE * 0.8} />
       )}
 
       {/* Координаты при наведении */}
@@ -140,14 +146,17 @@ export default function AdminMinigamesPage() {
       level.obstacles = exists
         ? level.obstacles.filter(o => !(o.x === x && o.y === y))
         : [...level.obstacles, { x, y }];
+      level.hazards = (level.hazards ?? []).filter(h => !(h.x === x && h.y === y));
     } else if (activeTool === 'start') {
       level.start_position = { ...level.start_position, x, y };
       level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y));
       level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y));
+      level.hazards = (level.hazards ?? []).filter(h => !(h.x === x && h.y === y));
     } else if (activeTool === 'finish') {
       level.finish_position = { x, y };
       level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y));
       level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y));
+      level.hazards = (level.hazards ?? []).filter(h => !(h.x === x && h.y === y));
     } else if (activeTool === 'coin') {
       const exists = level.coins?.some(c => c.x === x && c.y === y);
       level.coins = exists
@@ -160,10 +169,22 @@ export default function AdminMinigamesPage() {
       level.resources = exists
         ? (level.resources ?? []).filter(c => !(c.x === x && c.y === y))
         : [...(level.resources ?? []), { x, y }];
+    } else if (activeTool === 'hazard') {
+      if (x === level.start_position.x && y === level.start_position.y) return;
+      if (x === level.finish_position.x && y === level.finish_position.y) return;
+      level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y)); // Убираем стену
+      level.coins = (level.coins ?? []).filter(c => !(c.x === x && c.y === y)); // Убираем монету
+      level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y)); // Убираем ресурс
+      
+      const exists = level.hazards?.some(h => h.x === x && h.y === y);
+      level.hazards = exists
+        ? (level.hazards ?? []).filter(h => !(h.x === x && h.y === y))
+        : [...(level.hazards ?? []), { x, y }];
     } else if (activeTool === 'eraser') {
       level.obstacles = level.obstacles.filter(o => !(o.x === x && o.y === y));
       level.coins = (level.coins ?? []).filter(c => !(c.x === x && c.y === y));
       level.resources = (level.resources ?? []).filter(c => !(c.x === x && c.y === y));
+      level.hazards = (level.hazards ?? []).filter(h => !(h.x === x && h.y === y));
     }
 
     updateLevel(level);

@@ -204,6 +204,19 @@ async function* executeInner(
       return;
     }
 
+    const isHazard = level.hazards?.some(h => h.x === next.x && h.y === next.y);
+    if (isHazard) {
+      let hazardError = '💥 Робот попал в ловушку!';
+      if (level.theme === 'zombie') hazardError = '🧟 Зомби уничтожил вашего робота!';
+      if (level.theme === 'space') hazardError = '☄️ Вашего робота сбил астероид!';
+      
+      // Выдаем состояние с ошибкой
+      ctx.state = next;
+      yield { state: ctx.state, collectedCoins: [...ctx.coins], collectedResources: [...ctx.resources], finished: false, error: hazardError };
+      ctx.done = true;
+      return;
+    }
+
     ctx.state = next;
 
     // Монеты

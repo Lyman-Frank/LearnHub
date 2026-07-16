@@ -100,6 +100,32 @@ export function ZombieResource({ size = 24, collected }: SpriteProps) {
   );
 }
 
+export function ZombieHazard({ size = 40 }: SpriteProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .zh-head { animation: zhHead 2s infinite alternate; transform-origin: 20px 20px; }
+        @keyframes zhHead { 0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); } }
+      `}</style>
+      <g className="zh-head">
+        {/* Голова зомби */}
+        <path d="M 10 20 Q 10 5 20 5 Q 30 5 30 20 L 28 35 L 12 35 Z" fill="#4ade80" />
+        <path d="M 10 20 Q 10 5 20 5 Q 30 5 30 20 L 28 35 L 12 35 Z" fill="#064e3b" opacity="0.4" />
+        {/* Глаза (пустые/красные) */}
+        <circle cx="15" cy="18" r="3" fill="#000" />
+        <circle cx="25" cy="18" r="3" fill="#000" />
+        <circle cx="15" cy="18" r="1" fill="#ef4444" />
+        {/* Рот */}
+        <path d="M 14 28 Q 20 25 26 28 L 25 32 L 15 32 Z" fill="#000" />
+        {/* Зубы */}
+        <rect x="16" y="28" width="2" height="2" fill="#fff" />
+        <rect x="20" y="28" width="2" height="3" fill="#fff" />
+        <rect x="23" y="28" width="2" height="2" fill="#fff" />
+      </g>
+    </svg>
+  );
+}
+
 // ─── SPACE THEME ───────────────────────────────────────────
 export function SpaceRobot({ size = 40 }: SpriteProps) {
   return (
@@ -179,6 +205,26 @@ export function SpaceResource({ size = 24, collected }: SpriteProps) {
   );
 }
 
+export function SpaceHazard({ size = 40 }: SpriteProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .sh-spin { animation: shSpin 8s linear infinite; transform-origin: 20px 20px; }
+        @keyframes shSpin { 100% { transform: rotate(360deg); } }
+      `}</style>
+      <g className="sh-spin">
+        {/* Астероид (Огненный метеорит) */}
+        <path d="M 20 4 Q 30 5 36 15 Q 38 25 30 35 Q 20 38 10 32 Q 2 25 6 12 Q 10 2 20 4 Z" fill="#7c2d12" />
+        <path d="M 22 6 Q 28 8 32 16 Q 34 24 28 32 Q 20 34 12 28 Q 6 22 8 14 Q 14 6 22 6 Z" fill="#b45309" />
+        {/* Огненный след (кратеры) */}
+        <circle cx="16" cy="14" r="3" fill="#451a03" opacity="0.8" />
+        <circle cx="26" cy="22" r="4" fill="#451a03" opacity="0.8" />
+        <circle cx="18" cy="28" r="2" fill="#451a03" opacity="0.8" />
+      </g>
+    </svg>
+  );
+}
+
 export function DefaultResource({ size = 24, collected }: SpriteProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity: collected ? 0.2 : 1 }}>
@@ -186,6 +232,24 @@ export function DefaultResource({ size = 24, collected }: SpriteProps) {
       <circle cx="12" cy="12" r="6" fill="#94a3b8"/>
       <circle cx="12" cy="12" r="3" fill="#cbd5e1"/>
       <path d="M 12 2 L 14 6 L 10 6 Z M 12 22 L 14 18 L 10 18 Z M 2 12 L 6 10 L 6 14 Z M 22 12 L 18 10 L 18 14 Z" fill="#94a3b8"/>
+    </svg>
+  );
+}
+
+export function DefaultHazard({ size = 40 }: SpriteProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .dh-pulse { animation: dhPulse 1s infinite alternate; transform-origin: 20px 20px; }
+        @keyframes dhPulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+      `}</style>
+      {/* Ловушка / Шипы */}
+      <rect x="6" y="6" width="28" height="28" rx="4" fill="#1e293b" />
+      <g className="dh-pulse">
+        <path d="M 12 30 L 16 10 L 20 30 Z" fill="#ef4444" />
+        <path d="M 20 30 L 24 10 L 28 30 Z" fill="#ef4444" />
+        <path d="M 8 20 L 32 20 L 20 28 Z" fill="#dc2626" />
+      </g>
     </svg>
   );
 }
@@ -200,6 +264,7 @@ export const THEME_REGISTRY = {
     Coin: DefaultCoin,
     Start: DefaultStart,
     Resource: DefaultResource,
+    Hazard: DefaultHazard,
     Background: 'linear-gradient(135deg, #0b0718 0%, #130a2a 100%)',
     GridColor: 'rgba(139,92,246,0.08)'
   },
@@ -207,9 +272,10 @@ export const THEME_REGISTRY = {
     Robot: ZombieRobot,
     Wall: ZombieWall,
     Finish: ZombieFinish,
-    Coin: DefaultCoin, // Монеты остаются монетами (или можно заменить)
+    Coin: DefaultCoin,
     Start: DefaultStart,
     Resource: ZombieResource,
+    Hazard: ZombieHazard,
     Background: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
     GridColor: 'rgba(226,232,240,0.05)'
   },
@@ -220,6 +286,7 @@ export const THEME_REGISTRY = {
     Coin: DefaultCoin,
     Start: DefaultStart,
     Resource: SpaceResource,
+    Hazard: SpaceHazard,
     Background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
     GridColor: 'rgba(255,255,255,0.03)'
   }
