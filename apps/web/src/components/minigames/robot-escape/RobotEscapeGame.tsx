@@ -120,7 +120,7 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
       if (target.position === 'inside') {
         setCommands(prev => insertInLoop(prev, target.id, newCmd));
       } else {
-        setCommands(prev => insertNear(prev, target.id, target.position, newCmd));
+        setCommands(prev => insertNear(prev, target.id, target.position as 'before' | 'after', newCmd));
       }
     } else if (dragInfo.source === 'list' && dragInfo.commandId) {
       // Перемещаем существующую команду
