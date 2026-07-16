@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, Shield, Settings, Key, BookOpen, Images, MessageSquare, ShoppingBag } from 'lucide-react';
+import { LogOut, Shield, Settings, Key, BookOpen, Images, MessageSquare, ShoppingBag, Gamepad2 } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
@@ -102,6 +102,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 <ShoppingBag size={14} />
                 <span>Магазин</span>
+              </Link>
+              <Link
+                href="/admin/minigames"
+                className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                  pathname?.startsWith('/admin/minigames')
+                    ? 'text-violet-400 bg-violet-500/10'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                <Gamepad2 size={14} />
+                <span>Мини-игры</span>
               </Link>
             </nav>
           </div>

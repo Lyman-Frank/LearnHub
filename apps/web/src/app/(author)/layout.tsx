@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, GraduationCap, LayoutDashboard, PlusCircle, MessageSquare, Key, AlertCircle, Loader2 } from 'lucide-react';
+import { LogOut, GraduationCap, LayoutDashboard, PlusCircle, MessageSquare, Key, AlertCircle, Loader2, Gamepad2 } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { api } from '@/lib/api';
@@ -105,14 +105,15 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
                 Мои Классы
               </Link>
               <Link
-                href="/author/profile"
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === '/author/profile'
+                href="/author/minigames"
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                  pathname?.startsWith('/author/minigames')
                     ? 'text-fuchsia-400 bg-fuchsia-500/10'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                 }`}
               >
-                Профиль
+                <Gamepad2 size={14} />
+                Мини-игры
               </Link>
               <Link
                 href="/author/chat"

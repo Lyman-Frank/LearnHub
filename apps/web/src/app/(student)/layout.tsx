@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, BookOpen, User as UserIcon, Search, Trophy, MessageSquare, ShoppingBag } from 'lucide-react';
+import { LogOut, BookOpen, User as UserIcon, Search, Trophy, MessageSquare, ShoppingBag, Gamepad2 } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
@@ -125,14 +125,15 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                 Чат
               </Link>
               <Link
-                href="/student/profile"
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === '/student/profile'
+                href="/student/minigames"
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                  pathname?.startsWith('/student/minigames')
                     ? 'text-violet-400 bg-violet-500/10'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                 }`}
               >
-                Профиль
+                <Gamepad2 size={14} />
+                Мини-игры
               </Link>
             </nav>
           </div>
