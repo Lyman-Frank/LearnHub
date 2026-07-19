@@ -179,23 +179,27 @@ export default function MinecraftCraftingGame() {
         <div className="absolute bottom-0 w-full h-4 bg-amber-700 opacity-50" />
 
         {/* Scene Container */}
-        <div className="absolute inset-0 flex items-end justify-between px-16 pb-8">
+        <div className="absolute inset-0 pb-8">
           {/* Steve (Player) - animate sliding right during 'animating' phase */}
           <div 
-            className="transition-transform duration-[1500ms] ease-in-out relative"
-            style={{ transform: gameState === 'animating' ? 'translateX(calc(100vw - 400px))' : 'translateX(0)' }}
+            className="absolute bottom-8 transition-all duration-[1500ms] ease-linear z-10"
+            style={{ 
+              left: (gameState === 'animating' || gameState === 'won') 
+                ? 'calc(100% - 4rem - 96px - 112px + 30px)' 
+                : '4rem' 
+            }}
           >
             <Steve size={112} />
             {/* Tool in hand during animation */}
-            {gameState === 'animating' && CraftedItemComp && (
-              <div className="absolute top-6 -right-6 animate-pulse">
+            {(gameState === 'animating' || gameState === 'won') && CraftedItemComp && (
+              <div className={`absolute top-6 -right-6 ${gameState === 'animating' ? 'animate-bounce' : ''}`}>
                 <CraftedItemComp size={48} />
               </div>
             )}
           </div>
 
           {/* Obstacle */}
-          <div className={`transition-all duration-300 ${gameState === 'won' ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
+          <div className={`absolute right-16 bottom-8 transition-all duration-300 z-0 ${gameState === 'won' ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
             <ObstacleComp size={96} />
           </div>
         </div>
