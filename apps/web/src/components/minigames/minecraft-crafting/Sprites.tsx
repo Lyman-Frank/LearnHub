@@ -7,26 +7,47 @@ export interface SpriteProps {
 
 // ─── CHARACTERS ─────────────────────────────────────────────
 export function Steve({ size = 64, className = '' }: SpriteProps) {
-  // Simple 8x8 pixel art scaled up
+  // 16x32 pixel art layout (Steve proportions: 8 head + 12 body + 12 legs = 32 tall, 16 wide)
   return (
-    <svg width={size} height={size} viewBox="0 0 8 8" className={`pixelated ${className}`} xmlns="http://www.w3.org/2000/svg">
-      {/* Head */}
-      <rect x="2" y="0" width="4" height="4" fill="#E2C096" />
+    <svg width={size / 2} height={size} viewBox="0 0 16 32" className={`pixelated ${className}`} xmlns="http://www.w3.org/2000/svg">
+      {/* --- Head (8x8) --- */}
+      {/* Face Base */}
+      <rect x="4" y="0" width="8" height="8" fill="#D5AA7E" />
       {/* Hair */}
-      <rect x="2" y="0" width="4" height="1" fill="#4A3424" />
-      <rect x="2" y="1" width="1" height="1" fill="#4A3424" />
-      <rect x="5" y="1" width="1" height="1" fill="#4A3424" />
+      <rect x="4" y="0" width="8" height="2" fill="#362310" />
+      <rect x="3" y="0" width="1" height="3" fill="#362310" />
+      <rect x="12" y="0" width="1" height="3" fill="#362310" />
+      <rect x="4" y="2" width="1" height="1" fill="#362310" />
+      <rect x="11" y="2" width="1" height="1" fill="#362310" />
       {/* Eyes */}
-      <rect x="3" y="2" width="1" height="1" fill="#FFFFFF" />
-      <rect x="4" y="2" width="1" height="1" fill="#3D2980" />
-      {/* Body */}
-      <rect x="2" y="4" width="4" height="3" fill="#00A8A8" />
-      {/* Arms */}
-      <rect x="1" y="4" width="1" height="3" fill="#E2C096" />
-      <rect x="6" y="4" width="1" height="3" fill="#E2C096" />
-      {/* Legs */}
-      <rect x="2" y="7" width="1" height="1" fill="#3A3A98" />
-      <rect x="5" y="7" width="1" height="1" fill="#3A3A98" />
+      <rect x="5" y="4" width="1" height="1" fill="#FFFFFF" />
+      <rect x="6" y="4" width="1" height="1" fill="#4B398E" />
+      <rect x="9" y="4" width="1" height="1" fill="#FFFFFF" />
+      <rect x="10" y="4" width="1" height="1" fill="#4B398E" />
+      {/* Nose & Mouth */}
+      <rect x="7" y="5" width="2" height="1" fill="#A57A54" />
+      <rect x="6" y="6" width="4" height="1" fill="#714227" />
+      
+      {/* --- Body (8x12) --- */}
+      <rect x="4" y="8" width="8" height="12" fill="#00A8A8" />
+      {/* Collar/Neck details */}
+      <rect x="6" y="8" width="4" height="2" fill="#D5AA7E" />
+      
+      {/* --- Left Arm (4x12) --- */}
+      <rect x="0" y="8" width="4" height="4" fill="#00A8A8" /> {/* T-shirt sleeve */}
+      <rect x="0" y="12" width="4" height="8" fill="#D5AA7E" /> {/* Skin */}
+      
+      {/* --- Right Arm (4x12) --- */}
+      <rect x="12" y="8" width="4" height="4" fill="#00A8A8" /> {/* T-shirt sleeve */}
+      <rect x="12" y="12" width="4" height="8" fill="#D5AA7E" /> {/* Skin */}
+      
+      {/* --- Legs (4x12 each) --- */}
+      {/* Left Leg */}
+      <rect x="4" y="20" width="4" height="10" fill="#3A3A98" /> {/* Pants */}
+      <rect x="4" y="30" width="4" height="2" fill="#585858" /> {/* Shoe */}
+      {/* Right Leg */}
+      <rect x="8" y="20" width="4" height="10" fill="#3A3A98" /> {/* Pants */}
+      <rect x="8" y="30" width="4" height="2" fill="#585858" /> {/* Shoe */}
     </svg>
   );
 }

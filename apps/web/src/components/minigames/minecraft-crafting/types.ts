@@ -7,9 +7,9 @@ export interface InventoryItem {
 }
 
 export interface CraftingRecipe {
-  ingredient1: ItemId;
-  ingredient2: ItemId;
+  shape: (ItemId | null)[]; // length 9 array representing 3x3 grid
   result: ItemId;
+  shapeless?: boolean; // If true, order in the 9 slots doesn't matter
 }
 
 export type ObstacleType = 'wood_block' | 'dirt_block' | 'diamond_ore';

@@ -1,22 +1,65 @@
 import { ItemId, CraftingRecipe } from './types';
 
 export const RECIPES: CraftingRecipe[] = [
-  { ingredient1: 'wood', ingredient2: 'wood', result: 'stick' },
-  { ingredient1: 'stick', ingredient2: 'iron', result: 'iron_pickaxe' },
-  { ingredient1: 'iron', ingredient2: 'stick', result: 'iron_pickaxe' }, // order insensitive
+  { 
+    // Stick: 2 Wood (shapeless for simplicity)
+    shape: [
+      null, null, null,
+      null, null, null,
+      null, null, null
+    ], 
+    result: 'stick',
+    shapeless: true
+  },
+  { 
+    // Iron Pickaxe: 3 Iron top, 2 Sticks middle
+    shape: [
+      'iron', 'iron', 'iron',
+      null, 'stick', null,
+      null, 'stick', null
+    ], 
+    result: 'iron_pickaxe' 
+  },
 ];
 
-export function executeCrafting(slot1: ItemId | null, slot2: ItemId | null): { success: boolean; result?: ItemId; error?: string } {
-  if (!slot1 || !slot2) {
-    return { success: false, error: 'Заполни оба слота для крафта!' };
+export function executeCrafting(slots: (ItemId | null)[]): { success: boolean; result?: ItemId; error?: string } {
+  // Check if grid is entirely empty
+  if (slots.every(s => s === null)) {
+    return { success: false, error: 'Верстак пуст!' };
   }
 
-  const recipe = RECIPES.find(
-    r => (r.ingredient1 === slot1 && r.ingredient2 === slot2) || (r.ingredient1 === slot2 && r.ingredient2 === slot1)
-  );
+  // Helper to count items in a grid
+  const countItems = (grid: (ItemId | null)[]) => {
+    const counts: Record<string, number> = {};
+    grid.forEach(i => {
+      if (i) {
+        counts[i] = (counts[i] || 0) + 1;
+      }
+    });
+    return counts;
+  };
 
-  if (recipe) {
-    return { success: true, result: recipe.result };
+  const inputCounts = countItems(slots);
+
+  for (const recipe of RECIPES) {
+    if (recipe.shapeless && recipe.result === 'stick') {
+      // Hardcoded check for stick (2 wood anywhere)
+      if (inputCounts['wood'] === 2 && Object.keys(inputCounts).length === 1) {
+        return { success: true, result: 'stick' };
+      }
+    } else {
+      // Shaped recipe - exact match
+      let match = true;
+      for (let i = 0; i < 9; i++) {
+        if (slots[i] !== recipe.shape[i]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) {
+        return { success: true, result: recipe.result };
+      }
+    }
   }
 
   return { success: false, result: 'trash', error: 'Ошибка: Неизвестный рецепт. Получился мусор.' };
