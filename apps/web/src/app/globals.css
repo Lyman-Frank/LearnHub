@@ -159,9 +159,11 @@
    ============================================ */
 
 html:not(.dark) {
-  --color-bg-light: #FFFFFF;
-  --color-text-light: #000000;
-  --color-text-muted-light: #9E9E9E;
+  --color-bg-light: #eceee9;
+  --color-card-light: #b7d5d3;
+  --color-text-light: #056c8f;
+  --color-text-muted-light: #4c8a9e;
+  --color-surface-glass-light: rgba(183, 213, 211, 0.7);
 
   --color-violet-50:  #f0f4f8;
   --color-violet-100: #d9e2ec;
@@ -197,20 +199,20 @@ html:not(.dark) {
   --color-slate-950: #FFFFFF;
 
   /* Theme variables override for buttons */
-  --btn-primary-bg: linear-gradient(135deg, #4A6A8C, #000000);
-  --btn-primary-hover: linear-gradient(135deg, #000000, #4A6A8C);
-  --btn-secondary-text: #000000;
-  --btn-secondary-border: #4A6A8C;
-  --btn-secondary-hover-bg: rgba(74, 106, 140, 0.08);
-  --btn-secondary-hover-border: #000000;
-  --card-hover-border: rgba(74, 106, 140, 0.15);
+  --btn-primary-bg: #e8d171;
+  --btn-primary-hover: #d2bc60;
+  --btn-secondary-text: #056c8f;
+  --btn-secondary-border: #e8d171;
+  --btn-secondary-hover-bg: rgba(232, 209, 113, 0.2);
+  --btn-secondary-hover-border: #d2bc60;
+  --card-hover-border: rgba(5, 108, 143, 0.2);
   
-  --gradient-text-bg: linear-gradient(135deg, #000000, #4A6A8C, #9E9E9E);
-  --animated-bg: linear-gradient(-45deg, #FFFFFF, #f0f4f8, #d9e2ec, #FFFFFF, #f0f4f8);
-  --shimmer-bg: linear-gradient(90deg, rgba(74, 106, 140, 0.05) 25%, rgba(74, 106, 140, 0.15) 50%, rgba(74, 106, 140, 0.05) 75%);
-  --scrollbar-track: #FFFFFF;
-  --scrollbar-thumb: linear-gradient(180deg, #9E9E9E, #4A6A8C);
-  --scrollbar-thumb-hover: linear-gradient(180deg, #4A6A8C, #000000);
+  --gradient-text-bg: linear-gradient(135deg, #056c8f, #e8d171, #056c8f);
+  --animated-bg: linear-gradient(-45deg, #eceee9, #e2e4df, #b7d5d3, #eceee9, #e2e4df);
+  --shimmer-bg: linear-gradient(90deg, rgba(183, 213, 211, 0.2) 25%, rgba(183, 213, 211, 0.5) 50%, rgba(183, 213, 211, 0.2) 75%);
+  --scrollbar-track: #eceee9;
+  --scrollbar-thumb: linear-gradient(180deg, #b7d5d3, #e8d171);
+  --scrollbar-thumb-hover: linear-gradient(180deg, #e8d171, #d2bc60);
 }
 
 /* ── Keyframes ── */
