@@ -50,6 +50,7 @@ export interface LevelConfig {
   resources?: Position[]; // Предметы на карте, которые нужно собирать
   required_resources?: number; // Сколько ресурсов нужно собрать для финиша
   hazards?: Position[]; // Смертельные препятствия (зомби, астероиды, ловушки)
+  teleports?: Position[]; // Телепорты (обычно 2 шт на карте)
   allowed_commands: CommandType[];
   /** Обучающее сообщение, показывающееся при старте уровня */
   tutorial?: {

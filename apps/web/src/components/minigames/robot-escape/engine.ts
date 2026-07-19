@@ -219,6 +219,17 @@ async function* executeInner(
 
     ctx.state = next;
 
+    // Телепорты
+    if (level.teleports && level.teleports.length === 2) {
+      const t1 = level.teleports[0];
+      const t2 = level.teleports[1];
+      if (next.x === t1.x && next.y === t1.y) {
+        ctx.state = { ...next, x: t2.x, y: t2.y };
+      } else if (next.x === t2.x && next.y === t2.y) {
+        ctx.state = { ...next, x: t1.x, y: t1.y };
+      }
+    }
+
     // Монеты
     const cellKey = `${next.x}:${next.y}`;
     if (!ctx.coins.includes(cellKey) && level.coins?.some(c => c.x === next.x && c.y === next.y)) {

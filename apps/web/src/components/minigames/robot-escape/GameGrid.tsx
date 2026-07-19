@@ -30,7 +30,7 @@ export function GameGrid({ level, robotState, collectedCoins, collectedResources
   const gridH = rows * CELL_SIZE;
 
   const activeTheme = THEME_REGISTRY[level.theme || 'default'] || THEME_REGISTRY['default'];
-  const { Robot, Wall, Finish, Coin, Start, Resource, Hazard, Background, GridColor } = activeTheme;
+  const { Robot, Wall, Finish, Coin, Start, Resource, Hazard, Teleport, Background, GridColor } = activeTheme;
 
   return (
     <div
@@ -63,6 +63,7 @@ export function GameGrid({ level, robotState, collectedCoins, collectedResources
           const hasCoin   = level.coins?.some(c => c.x === col && c.y === row);
           const hasResource = level.resources?.some(c => c.x === col && c.y === row);
           const hasHazard = level.hazards?.some(h => h.x === col && h.y === row);
+          const hasTeleport = level.teleports?.some(t => t.x === col && t.y === row);
           const coinDone  = collectedCoins.includes(cellKey);
           const resourceDone = collectedResources.includes(cellKey);
           const isError   = errorCell?.x === col && errorCell?.y === row;
@@ -128,9 +129,16 @@ export function GameGrid({ level, robotState, collectedCoins, collectedResources
               )}
 
               {/* Угроза (Hazard) */}
-              {hasHazard && !isWall && !isFinish && !hasCoin && !hasResource && (
+              {hasHazard && !isWall && !isFinish && !hasCoin && !hasResource && !hasTeleport && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Hazard size={CELL_SIZE * 0.7} />
+                </div>
+              )}
+
+              {/* Телепорт */}
+              {hasTeleport && !isWall && !isFinish && !hasCoin && !hasResource && !hasHazard && (
+                <div className="absolute inset-0 flex items-center justify-center opacity-80">
+                  <Teleport size={CELL_SIZE * 0.75} />
                 </div>
               )}
 

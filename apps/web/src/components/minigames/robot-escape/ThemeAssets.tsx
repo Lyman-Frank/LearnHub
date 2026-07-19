@@ -126,6 +126,25 @@ export function ZombieHazard({ size = 40 }: SpriteProps) {
   );
 }
 
+export function ZombieTeleport({ size = 40 }: SpriteProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .zt-pulse { animation: ztPulse 2s ease-in-out infinite alternate; transform-origin: 20px 20px; }
+        @keyframes ztPulse { 0% { transform: scale(0.9); } 100% { transform: scale(1.1); } }
+      `}</style>
+      <g className="zt-pulse">
+        <ellipse cx="20" cy="20" rx="16" ry="10" fill="#064e3b" />
+        <ellipse cx="20" cy="20" rx="12" ry="6" fill="#10b981" />
+        <ellipse cx="20" cy="20" rx="8" ry="3" fill="#34d399" />
+        <circle cx="16" cy="18" r="1" fill="#ecfdf5" />
+        <circle cx="24" cy="21" r="1.5" fill="#ecfdf5" />
+        <circle cx="20" cy="19" r="0.8" fill="#ecfdf5" />
+      </g>
+    </svg>
+  );
+}
+
 // ─── SPACE THEME ───────────────────────────────────────────
 export function SpaceRobot({ size = 40 }: SpriteProps) {
   return (
@@ -225,6 +244,24 @@ export function SpaceHazard({ size = 40 }: SpriteProps) {
   );
 }
 
+export function SpaceTeleport({ size = 40 }: SpriteProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .st-vortex { animation: stVortex 4s linear infinite; transform-origin: 20px 20px; }
+        @keyframes stVortex { 100% { transform: rotate(-360deg); } }
+      `}</style>
+      <g className="st-vortex">
+        <circle cx="20" cy="20" r="16" fill="#000000" />
+        <circle cx="20" cy="20" r="14" fill="#1e1b4b" opacity="0.8" />
+        <path d="M 20 4 C 35 4 35 36 20 36 C 5 36 5 4 20 4 Z" fill="none" stroke="#6366f1" strokeWidth="2" strokeDasharray="4 4" />
+        <circle cx="20" cy="20" r="8" fill="#312e81" />
+        <circle cx="20" cy="20" r="4" fill="#c7d2fe" />
+      </g>
+    </svg>
+  );
+}
+
 export function DefaultResource({ size = 24, collected }: SpriteProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity: collected ? 0.2 : 1 }}>
@@ -254,6 +291,23 @@ export function DefaultHazard({ size = 40 }: SpriteProps) {
   );
 }
 
+export function DefaultTeleport({ size = 40 }: SpriteProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .dt-spin { animation: dtSpin 3s linear infinite; transform-origin: 20px 20px; }
+        @keyframes dtSpin { 100% { transform: rotate(360deg) scale(1.1); } 50% { transform: rotate(180deg) scale(0.9); } }
+      `}</style>
+      <g className="dt-spin">
+        <circle cx="20" cy="20" r="14" fill="#a855f7" opacity="0.3" />
+        <circle cx="20" cy="20" r="10" fill="#8b5cf6" opacity="0.6" />
+        <circle cx="20" cy="20" r="6" fill="#6d28d9" />
+        <path d="M 20 6 Q 26 14 20 20 Q 14 26 20 34 Q 26 26 20 20 Q 14 14 20 6 Z" fill="#d8b4fe" opacity="0.8" />
+      </g>
+    </svg>
+  );
+}
+
 // ─── РЕЕСТР ТЕМ ────────────────────────────────────────────
 
 export const THEME_REGISTRY = {
@@ -265,6 +319,7 @@ export const THEME_REGISTRY = {
     Start: DefaultStart,
     Resource: DefaultResource,
     Hazard: DefaultHazard,
+    Teleport: DefaultTeleport,
     Background: 'linear-gradient(135deg, #0b0718 0%, #130a2a 100%)',
     GridColor: 'rgba(139,92,246,0.08)'
   },
@@ -276,6 +331,7 @@ export const THEME_REGISTRY = {
     Start: DefaultStart,
     Resource: ZombieResource,
     Hazard: ZombieHazard,
+    Teleport: ZombieTeleport,
     Background: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
     GridColor: 'rgba(226,232,240,0.05)'
   },
@@ -287,6 +343,7 @@ export const THEME_REGISTRY = {
     Start: DefaultStart,
     Resource: SpaceResource,
     Hazard: SpaceHazard,
+    Teleport: SpaceTeleport,
     Background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
     GridColor: 'rgba(255,255,255,0.03)'
   }
