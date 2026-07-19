@@ -20,6 +20,15 @@ const GAMES: GameMeta[] = [
     available: true,
   },
   {
+    id: 'minecraft-crafting',
+    title: '2D Майнкрафт (Крафт и Функции)',
+    description: 'Используй функции для создания инструментов и добычи ресурсов. Напиши правильный рецепт крафта!',
+    href: '/student/minigames/minecraft-crafting',
+    difficulty: 'medium',
+    tags: ['Функции', 'Логика', '2D'],
+    available: true,
+  },
+  {
     id: 'code-quiz',
     title: 'Викторина Кода',
     description: 'Отвечай на вопросы по программированию быстрее других. Побеждает знание!',
