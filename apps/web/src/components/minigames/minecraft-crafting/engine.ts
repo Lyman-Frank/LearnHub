@@ -20,6 +20,42 @@ export const RECIPES: CraftingRecipe[] = [
     ], 
     result: 'iron_pickaxe' 
   },
+  {
+    // Iron Sword: 1 Iron, 1 Iron, 1 Stick vertical
+    shape: [
+      null, 'iron', null,
+      null, 'iron', null,
+      null, 'stick', null
+    ],
+    result: 'iron_sword'
+  },
+  {
+    // Iron Axe: 2 Iron, 1 Iron, 2 Sticks
+    shape: [
+      'iron', 'iron', null,
+      'iron', 'stick', null,
+      null, 'stick', null
+    ],
+    result: 'iron_axe'
+  },
+  {
+    // Iron Axe (mirrored)
+    shape: [
+      null, 'iron', 'iron',
+      null, 'stick', 'iron',
+      null, 'stick', null
+    ],
+    result: 'iron_axe'
+  },
+  {
+    // Iron Shovel: 1 Iron, 2 Sticks vertical
+    shape: [
+      null, 'iron', null,
+      null, 'stick', null,
+      null, 'stick', null
+    ],
+    result: 'iron_shovel'
+  }
 ];
 
 export function executeCrafting(slots: (ItemId | null)[]): { success: boolean; result?: ItemId; error?: string } {

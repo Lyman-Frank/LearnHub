@@ -1,4 +1,4 @@
-export type ItemId = 'wood' | 'stick' | 'iron' | 'iron_pickaxe' | 'diamond' | 'dirt' | 'stone' | 'trash';
+export type ItemId = 'wood' | 'stick' | 'iron' | 'iron_pickaxe' | 'iron_sword' | 'iron_axe' | 'iron_shovel' | 'diamond' | 'dirt' | 'stone' | 'trash';
 
 export interface InventoryItem {
   id: ItemId;
@@ -12,7 +12,7 @@ export interface CraftingRecipe {
   shapeless?: boolean; // If true, order in the 9 slots doesn't matter
 }
 
-export type ObstacleType = 'wood_block' | 'dirt_block' | 'diamond_ore';
+export type ObstacleType = 'wood_block' | 'dirt_block' | 'diamond_ore' | 'zombie';
 
 export interface CraftingLevel {
   id: number;
@@ -21,4 +21,7 @@ export interface CraftingLevel {
   initialInventory: InventoryItem[];
   obstacle: ObstacleType;
   requiredTool: ItemId; // The tool needed to break the obstacle and win
+  status?: 'published' | 'draft';
+  createdAt?: string;
+  updatedAt?: string;
 }

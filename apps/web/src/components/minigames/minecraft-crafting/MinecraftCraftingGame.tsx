@@ -5,16 +5,18 @@ import { Play, RotateCcw } from 'lucide-react';
 import { ItemId, InventoryItem, CraftingLevel } from './types';
 import { executeCrafting } from './engine';
 import { 
-  Steve, DiamondOre, WoodBlock, DirtBlock,
-  WoodItem, StickItem, IronItem, IronPickaxeItem, TrashItem, SpriteProps
+  Steve, DiamondOre, WoodBlock, DirtBlock, Zombie,
+  WoodItem, StickItem, IronItem, IronPickaxeItem, IronSwordItem, IronAxeItem, IronShovelItem, TrashItem, SpriteProps
 } from './Sprites';
 
-// Mapping for item icons
 const ItemIcons: Record<string, React.FC<SpriteProps>> = {
   wood: WoodItem,
   stick: StickItem,
   iron: IronItem,
   iron_pickaxe: IronPickaxeItem,
+  iron_sword: IronSwordItem,
+  iron_axe: IronAxeItem,
+  iron_shovel: IronShovelItem,
   trash: TrashItem,
   diamond: TrashItem,
   dirt: TrashItem,
@@ -25,25 +27,16 @@ const ObstacleIcons: Record<string, React.FC<SpriteProps>> = {
   wood_block: WoodBlock,
   dirt_block: DirtBlock,
   diamond_ore: DiamondOre,
+  zombie: Zombie,
 };
 
-const LEVEL_1: CraftingLevel = {
-  id: 1,
-  title: 'Уровень 1: Алмазная лихорадка',
-  taskText: 'Чтобы добыть алмаз, тебе нужна железная кирка. Собери крафт кирки 3x3 (3 железа сверху, 2 палки по центру)!',
-  initialInventory: [
-    { id: 'wood', label: 'Дерево', count: 2 },
-    { id: 'stick', label: 'Палка', count: 2 },
-    { id: 'iron', label: 'Железо', count: 3 },
-  ],
-  obstacle: 'diamond_ore',
-  requiredTool: 'iron_pickaxe',
-};
+interface Props {
+  level: CraftingLevel;
+}
 
 type DragSource = 'inventory' | number;
 
-export default function MinecraftCraftingGame() {
-  const [level, setLevel] = useState<CraftingLevel>(LEVEL_1);
+export default function MinecraftCraftingGame({ level }: Props) {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [grid, setGrid] = useState<(ItemId | null)[]>(Array(9).fill(null));
   
@@ -55,10 +48,10 @@ export default function MinecraftCraftingGame() {
 
   useEffect(() => {
     resetLevel();
-  }, []);
+  }, [level]);
 
   const resetLevel = () => {
-    setInventory(LEVEL_1.initialInventory.map(item => ({...item})));
+    setInventory(level.initialInventory.map(item => ({...item})));
     setGrid(Array(9).fill(null));
     setGameState('playing');
     setMessage('');
