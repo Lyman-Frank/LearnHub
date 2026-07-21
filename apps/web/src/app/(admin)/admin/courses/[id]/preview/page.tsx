@@ -102,15 +102,15 @@ export default function AdminCoursePreviewPage({ params }: PageProps) {
 
   const handleApprove = async () => {
     if (actionLoading) return;
-    if (!confirm('Вы уверены, что хотите утвердить и опубликовать этот курс?')) return;
+    if (!(await window.customConfirm())) return;
 
     setActionLoading(true);
     try {
       await api.adminUpdateCourseStatus(courseId, 'PUBLISHED');
-      alert('Курс успешно утвержден и опубликован! 🎉');
+      window.customAlert('Курс успешно утвержден и опубликован! 🎉');
       router.push('/admin/courses');
     } catch (err: any) {
-      alert(err.message || 'Ошибка одобрения курса');
+      window.customAlert(err.message || 'Ошибка одобрения курса');
     } finally {
       setActionLoading(false);
     }
@@ -125,17 +125,17 @@ export default function AdminCoursePreviewPage({ params }: PageProps) {
       : REJECTION_TEMPLATES.find(t => t.id === selectedTemplate)?.text;
 
     if (!finalReason) {
-      alert('Пожалуйста, укажите причину отклонения');
+      window.customAlert('Пожалуйста, укажите причину отклонения');
       return;
     }
 
     setActionLoading(true);
     try {
       await api.adminRejectCourse(courseId, finalReason);
-      alert('Курс отклонен, автору отправлено уведомление.');
+      window.customAlert('Курс отклонен, автору отправлено уведомление.');
       router.push('/admin/courses');
     } catch (err: any) {
-      alert(err.message || 'Ошибка отклонения курса');
+      window.customAlert(err.message || 'Ошибка отклонения курса');
     } finally {
       setActionLoading(false);
       setIsRejectModalOpen(false);

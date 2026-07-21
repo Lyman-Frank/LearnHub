@@ -140,7 +140,7 @@ export default function AuthorGroupsPage() {
 
   const handleDeleteGroup = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Вы уверены, что хотите удалить эту группу? Все привязанные студенты будут исключены из класса.')) {
+    if (!(await window.customConfirm())) {
       return;
     }
 
@@ -152,7 +152,7 @@ export default function AuthorGroupsPage() {
       await fetchGroupsAndCourses();
     } catch (err) {
       console.error('Error deleting group:', err);
-      alert('Не удалось удалить группу');
+      window.customAlert('Не удалось удалить группу');
     }
   };
 
@@ -163,7 +163,7 @@ export default function AuthorGroupsPage() {
       setSelectedGroup(detail);
     } catch (err) {
       console.error('Error loading group details:', err);
-      alert('Не удалось загрузить сведения о классе');
+      window.customAlert('Не удалось загрузить сведения о классе');
     } finally {
       setLoadingDetail(false);
     }

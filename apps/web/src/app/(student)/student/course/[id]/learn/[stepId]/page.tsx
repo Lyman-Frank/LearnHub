@@ -70,10 +70,10 @@ export default function LearnStepPage({ params }: PageProps) {
       setTimeout(() => setEarnedXpToast(null), 4000);
 
       if (res.moduleBonusXp > 0) {
-        alert(`🎉 Раздел "${res.completedModuleTitle}" успешно завершен! Вы получили бонус +${res.moduleBonusXp} XP!`);
+        window.customAlert(`🎉 Раздел "${res.completedModuleTitle}" успешно завершен! Вы получили бонус +${res.moduleBonusXp} XP!`);
       }
       if (res.courseBonusXp > 0) {
-        alert(`🏆 Поздравляем! Курс "${res.completedCourseTitle}" полностью завершен! Вы получили супер-бонус +${res.courseBonusXp} XP!`);
+        window.customAlert(`🏆 Поздравляем! Курс "${res.completedCourseTitle}" полностью завершен! Вы получили супер-бонус +${res.courseBonusXp} XP!`);
       }
     }
     if (res && res.newEarnedBadges && res.newEarnedBadges.length > 0) {

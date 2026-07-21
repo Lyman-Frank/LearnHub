@@ -97,12 +97,12 @@ export default function AdminGalleryPage() {
   };
 
   const handleDeleteImage = async (id: string) => {
-    if (!confirm('Удалить это изображение из галереи?')) return;
+    if (!(await window.customConfirm())) return;
     try {
       await api.deleteGalleryImage(id);
       await loadGallery();
     } catch (e: any) {
-      alert(e.message || 'Ошибка удаления');
+      window.customAlert(e.message || 'Ошибка удаления');
     }
   };
 
@@ -116,7 +116,7 @@ export default function AdminGalleryPage() {
       await loadGallery();
       setActiveCategory(newCatName.trim());
     } catch (e: any) {
-      alert(e.message || 'Ошибка создания категории');
+      window.customAlert(e.message || 'Ошибка создания категории');
     } finally {
       setSavingCat(false);
     }
@@ -124,12 +124,12 @@ export default function AdminGalleryPage() {
 
   const handleDeleteCategory = async (cat: string) => {
     const count = categories[cat]?.length || 0;
-    if (!confirm(`Удалить категорию «${cat}»${count > 0 ? ` и все ${count} изображений в ней` : ''}?`)) return;
+    if (!(await window.customConfirm())) return;
     try {
       await api.deleteGalleryCategory(cat);
       await loadGallery();
     } catch (e: any) {
-      alert(e.message || 'Ошибка удаления категории');
+      window.customAlert(e.message || 'Ошибка удаления категории');
     }
   };
 

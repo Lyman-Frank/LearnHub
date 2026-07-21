@@ -43,6 +43,13 @@ export class ShopController {
     return this.shopService.createItem(dto);
   }
 
+  @Post('admin/update/:id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Редактировать товар в магазине (только для администраторов)' })
+  async update(@Param('id') id: string, @Body() dto: any) {
+    return this.shopService.updateItem(id, dto);
+  }
+
   @Delete('admin/delete/:id')
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Удалить товар из магазина (только для администраторов)' })

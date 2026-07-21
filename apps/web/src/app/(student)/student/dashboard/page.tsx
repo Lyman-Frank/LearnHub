@@ -65,6 +65,14 @@ export default function StudentDashboardPage() {
 
   const name = user ? user.firstName : 'Студент';
 
+  const formatTime = (seconds: number) => {
+    if (!seconds) return '0 мин';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) return `${h}ч ${m}мин`;
+    return `${m} мин`;
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Приветственный баннер */}
@@ -120,7 +128,10 @@ export default function StudentDashboardPage() {
             <Activity size={24} />
           </div>
           <div>
-            <div className="text-2xl font-bold">1 день</div>
+            <div className="text-2xl font-bold">{stats?.streak ?? 0} {
+              (stats?.streak ?? 0) === 1 ? 'день' : 
+              ((stats?.streak ?? 0) > 1 && (stats?.streak ?? 0) < 5) ? 'дня' : 'дней'
+            }</div>
             <div className="text-xs text-slate-400 font-medium">Ударный режим 🔥</div>
           </div>
         </div>
@@ -129,7 +140,7 @@ export default function StudentDashboardPage() {
             <Clock size={24} />
           </div>
           <div>
-            <div className="text-2xl font-bold">0 ч</div>
+            <div className="text-2xl font-bold">{formatTime(stats?.timeSpent ?? 0)}</div>
             <div className="text-xs text-slate-400 font-medium">Время обучения</div>
           </div>
         </div>

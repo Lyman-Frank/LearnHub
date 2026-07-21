@@ -56,4 +56,20 @@ export class AuthController {
   async activateKey(@CurrentUser('id') userId: string, @Body() body: { inviteCode: string }) {
     return this.authService.activateKey(userId, body.inviteCode);
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('profile')
+  @ApiOperation({ summary: 'Обновление профиля пользователя' })
+  async updateProfile(@CurrentUser('id') userId: string, @Body() body: { firstName?: string; lastName?: string; email?: string; institutionType?: string; institutionName?: string }) {
+    return this.authService.updateProfile(userId, body);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('privacy')
+  @ApiOperation({ summary: 'Обновление настроек приватности' })
+  async updatePrivacy(@CurrentUser('id') userId: string, @Body() body: { privacySettings: string }) {
+    return this.authService.updatePrivacy(userId, body.privacySettings);
+  }
 }

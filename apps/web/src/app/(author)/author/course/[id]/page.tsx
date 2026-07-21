@@ -136,7 +136,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
       setCoursePassword(data.password || '');
     } catch (err) {
       console.error('Ошибка загрузки курса:', err);
-      alert('Не удалось загрузить курс.');
+      window.customAlert('Не удалось загрузить курс.');
       router.push('/author/dashboard');
     } finally {
       if (!silent) setLoading(false);
@@ -186,9 +186,9 @@ export default function CourseBuilderPage({ params }: PageProps) {
         password: coursePassword || null,
       });
       await loadCourse(true);
-      alert('Настройки курса успешно сохранены!');
+      window.customAlert('Настройки курса успешно сохранены!');
     } catch (err: any) {
-      alert(err.message || 'Ошибка сохранения');
+      window.customAlert(err.message || 'Ошибка сохранения');
     } finally {
       setSaving(false);
     }
@@ -235,9 +235,9 @@ export default function CourseBuilderPage({ params }: PageProps) {
       await loadCourse(true);
       // Обновляем локальное состояние выбранного шага
       setSelectedStep(prev => prev ? { ...prev, title: stepTitle, type: stepType, content, xp: stepXp, isArchived: stepIsArchived } : null);
-      alert('Шаг сохранен!');
+      window.customAlert('Шаг сохранен!');
     } catch (err: any) {
-      alert(err.message || 'Ошибка при сохранении шага');
+      window.customAlert(err.message || 'Ошибка при сохранении шага');
     } finally {
       setSaving(false);
     }
@@ -245,25 +245,25 @@ export default function CourseBuilderPage({ params }: PageProps) {
 
   // Добавление структуры
   const handleAddModule = async () => {
-    const title = prompt('Введите название раздела (модуля):');
+    const title = (await window.customPrompt()):');
     if (!title) return;
     try {
       const position = (course?.modules.length || 0) + 1;
       await api.createModule({ title, position, courseId });
       loadCourse(true);
     } catch (err: any) {
-      alert(err.message);
+      window.customAlert(err.message);
     }
   };
 
   const handleAddLesson = async (moduleId: string, currentLessonsCount: number) => {
-    const title = prompt('Введите название урока:');
+    const title = (await window.customPrompt());
     if (!title) return;
     try {
       await api.createLesson({ title, position: currentLessonsCount + 1, moduleId });
       loadCourse(true);
     } catch (err: any) {
-      alert(err.message);
+      window.customAlert(err.message);
     }
   };
 
@@ -279,7 +279,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
       await loadCourse(true);
       handleSelectStep(newStep);
     } catch (err: any) {
-      alert(err.message);
+      window.customAlert(err.message);
     }
   };
 
@@ -295,14 +295,14 @@ export default function CourseBuilderPage({ params }: PageProps) {
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
-    const newTitle = prompt('Введите новое название раздела (модуля):', currentTitle);
+    const newTitle = (await window.customPrompt()):', currentTitle);
     if (newTitle === null) return;
     
-    const xpStr = prompt('Введите бонус за прохождение раздела (XP) или оставьте пустым:', currentXp !== null && currentXp !== undefined ? String(currentXp) : '');
+    const xpStr = (await window.customPrompt()) или оставьте пустым:', currentXp !== null && currentXp !== undefined ? String(currentXp) : '');
     if (xpStr === null) return;
     const xpVal = xpStr === '' ? null : parseInt(xpStr, 10);
 
-    const passwordVal = prompt('Введите пароль раздела (или оставьте пустым для публичного раздела):', currentPassword || '');
+    const passwordVal = (await window.customPrompt()):', currentPassword || '');
     if (passwordVal === null) return;
     const finalPassword = passwordVal === '' ? null : passwordVal;
 
@@ -315,7 +315,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
     if (availVal.trim() !== '') {
       const parsed = Date.parse(availVal.trim());
       if (isNaN(parsed)) {
-        alert('Неверный формат даты! Дата публикации не установлена.');
+        window.customAlert('Неверный формат даты! Дата публикации не установлена.');
       } else {
         finalAvailable = new Date(parsed).toISOString();
       }
@@ -330,13 +330,13 @@ export default function CourseBuilderPage({ params }: PageProps) {
     if (deadVal.trim() !== '') {
       const parsed = Date.parse(deadVal.trim());
       if (isNaN(parsed)) {
-        alert('Неверный формат даты! Дедлайн не установлен.');
+        window.customAlert('Неверный формат даты! Дедлайн не установлен.');
       } else {
         finalDeadline = new Date(parsed).toISOString();
       }
     }
 
-    const archiveConfirm = confirm(currentIsArchived ? 'Раздел сейчас заархивирован. Разархивировать его?' : 'Хотите заархивировать этот раздел (скрыть от студентов)?');
+    const archiveConfirm = (await window.customConfirm())?');
     const isArchivedVal = currentIsArchived ? !archiveConfirm : archiveConfirm;
 
     try {
@@ -350,7 +350,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
       });
       await loadCourse(true);
     } catch (err: any) {
-      alert(err.message || 'Ошибка обновления раздела');
+      window.customAlert(err.message || 'Ошибка обновления раздела');
     }
   };
 
@@ -363,7 +363,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
-    const newTitle = prompt('Введите новое название урока:', currentTitle);
+    const newTitle = (await window.customPrompt());
     if (newTitle === null) return;
 
     const availVal = prompt(
@@ -375,7 +375,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
     if (availVal.trim() !== '') {
       const parsed = Date.parse(availVal.trim());
       if (isNaN(parsed)) {
-        alert('Неверный формат даты! Дата публикации не установлена.');
+        window.customAlert('Неверный формат даты! Дата публикации не установлена.');
       } else {
         finalAvailable = new Date(parsed).toISOString();
       }
@@ -390,13 +390,13 @@ export default function CourseBuilderPage({ params }: PageProps) {
     if (deadVal.trim() !== '') {
       const parsed = Date.parse(deadVal.trim());
       if (isNaN(parsed)) {
-        alert('Неверный формат даты! Дедлайн не установлен.');
+        window.customAlert('Неверный формат даты! Дедлайн не установлен.');
       } else {
         finalDeadline = new Date(parsed).toISOString();
       }
     }
 
-    const archiveConfirm = confirm(currentIsArchived ? 'Урок сейчас заархивирован. Разархивировать его?' : 'Хотите заархивировать этот урок (скрыть от студентов)?');
+    const archiveConfirm = (await window.customConfirm())?');
     const isArchivedVal = currentIsArchived ? !archiveConfirm : archiveConfirm;
 
     try {
@@ -408,36 +408,36 @@ export default function CourseBuilderPage({ params }: PageProps) {
       });
       await loadCourse(true);
     } catch (err: any) {
-      alert(err.message || 'Ошибка обновления урока');
+      window.customAlert(err.message || 'Ошибка обновления урока');
     }
   };
 
   // Удаление структуры
   const handleDeleteModule = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Вы действительно хотите удалить этот раздел со всеми его уроками?')) return;
+    if (!(await window.customConfirm())) return;
     try {
       await api.deleteModule(id);
       loadCourse();
     } catch (err: any) {
-      alert(err.message);
+      window.customAlert(err.message);
     }
   };
 
   const handleDeleteLesson = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Удалить этот урок?')) return;
+    if (!(await window.customConfirm())) return;
     try {
       await api.deleteLesson(id);
       loadCourse();
     } catch (err: any) {
-      alert(err.message);
+      window.customAlert(err.message);
     }
   };
 
   const handleDeleteStep = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Удалить этот шаг?')) return;
+    if (!(await window.customConfirm())) return;
     try {
       await api.deleteStep(id);
       if (selectedStep?.id === id) {
@@ -446,7 +446,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
       }
       loadCourse();
     } catch (err: any) {
-      alert(err.message);
+      window.customAlert(err.message);
     }
   };
 
@@ -906,7 +906,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
                                 content={parsed}
                                 submitted={false}
                                 onSubmit={async (cd) => {
-                                  alert(`Вы отправляете код:\n${cd}`);
+                                  window.customAlert(`Вы отправляете код:\n${cd}`);
                                   return { testCaseResults: parsed.testCases.map(() => ({ passed: true })), xpEarned: 50 };
                                 }}
                                 onReset={() => {}}

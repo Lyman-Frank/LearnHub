@@ -5,7 +5,9 @@ import {
   UploadedFile,
   BadRequestException,
   UseGuards,
+  Request,
 } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('upload')
 export class UploadController {
+  constructor(private readonly prisma: PrismaService) {}
 
   @Post('image')
   @ApiOperation({ summary: 'Загрузить изображение (макс. 3 МБ, JPG/PNG/WebP/GIF)' })
@@ -40,6 +43,28 @@ export class UploadController {
       originalName: file.originalname,
       size: file.size,
       mimeType: file.mimetype,
+    };
+  }
+
+  @Post('avatar')
+  @ApiOperation({ summary: 'Загрузить аватар профиля' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Request() req: any) {
+    if (!file) {
+      throw new BadRequestException('Файл не загружен');
+    }
+
+    const url = `/uploads/${file.filename}`;
+    
+    await this.prisma.user.update({
+      where: { id: req.user.id },
+      data: { avatarUrl: url }
+    });
+
+    return {
+      url,
+      message: 'Аватар успешно обновлен'
     };
   }
 }

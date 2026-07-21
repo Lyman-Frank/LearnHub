@@ -23,6 +23,7 @@ import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { GroupsModule } from './groups/groups.module';
 import { ShopModule } from './shop/shop.module';
+import { MinigamesModule } from './minigames/minigames.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { SubscriptionGuard } from './auth/guards/subscription.guard';
@@ -80,6 +81,7 @@ import { HealthModule } from './health/health.module';
     NotificationsModule,
     GroupsModule,
     ShopModule,
+    MinigamesModule,
   ],
   controllers: [AppController],
   providers: [

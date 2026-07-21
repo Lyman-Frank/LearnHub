@@ -242,6 +242,26 @@ export class ShopService implements OnModuleInit {
     });
   }
 
+  async updateItem(id: string, dto: {
+    title?: string;
+    description?: string;
+    cost?: number;
+    type?: string;
+    imageUrl?: string;
+    metadata?: string;
+    requiredCoursesCount?: number;
+    requiredStreakDays?: number;
+  }) {
+    const item = await this.prisma.shopItem.findUnique({ where: { id } });
+    if (!item) {
+      throw new NotFoundException('Предмет не найден');
+    }
+    return this.prisma.shopItem.update({
+      where: { id },
+      data: dto
+    });
+  }
+
   async deleteItem(id: string) {
     const item = await this.prisma.shopItem.findUnique({ where: { id } });
     if (!item) {

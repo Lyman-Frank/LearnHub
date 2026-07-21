@@ -22,6 +22,7 @@ export default function AdminShopPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -74,7 +75,7 @@ export default function AdminShopPage() {
     }
   };
 
-  const handleCreateItem = async (e: React.FormEvent) => {
+  const handleSubmitItem = async (e: React.FormEvent) => {
     e.preventDefault();
     setActionLoading(true);
     setError(null);
@@ -91,7 +92,7 @@ export default function AdminShopPage() {
     }
 
     try {
-      await api.createShopItem({
+      const payload = {
         title,
         description: description || undefined,
         cost,
@@ -100,9 +101,20 @@ export default function AdminShopPage() {
         metadata: metadataStr || undefined,
         requiredCoursesCount: requiredCourses,
         requiredStreakDays: requiredStreak,
-      });
+      };
 
-      setSuccess('Товар успешно добавлен в магазин!');
+      if (editingId) {
+        await api.request(`/shop/admin/update/${editingId}`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        setSuccess('Товар успешно обновлен!');
+      } else {
+        await api.createShopItem(payload);
+        setSuccess('Товар успешно добавлен в магазин!');
+      }
+
+      setEditingId(null);
       setTitle('');
       setDescription('');
       setCost(100);
@@ -111,14 +123,39 @@ export default function AdminShopPage() {
       setRequiredStreak(0);
       fetchItems();
     } catch (err: any) {
-      setError(err.message || 'Не удалось создать товар');
+      setError(err.message || 'Не удалось сохранить товар');
     } finally {
       setActionLoading(false);
     }
   };
 
+  const handleEditClick = (item: any) => {
+    setEditingId(item.id);
+    setTitle(item.title);
+    setDescription(item.description || '');
+    setCost(item.cost);
+    setType(item.type);
+    setImageUrl(item.imageUrl || '');
+    setRequiredCourses(item.requiredCoursesCount || 0);
+    setRequiredStreak(item.requiredStreakDays || 0);
+
+    if (item.metadata) {
+      try {
+        const meta = JSON.parse(item.metadata);
+        if (item.type === 'AVATAR_FRAME') setFrameClass(meta.borderClass || '');
+        if (item.type === 'USERNAME_COLOR') setColorClass(meta.colorClass || '');
+        if (item.type === 'BADGE') {
+          setBadgeIcon(meta.icon || 'Award');
+          setBadgeColor(meta.color || '#a855f7');
+        }
+      } catch (e) {}
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleDeleteItem = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот товар из магазина?')) return;
+    if (!(await window.customConfirm())) return;
 
     setActionLoading(true);
     setError(null);
@@ -165,14 +202,29 @@ export default function AdminShopPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Форма добавления */}
-        <div className="lg:col-span-1 p-6 rounded-2xl border border-slate-900 bg-slate-950/40 backdrop-blur-md space-y-6">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Plus size={20} className="text-violet-400" />
-            <span>Добавить товар</span>
-          </h2>
-
-          <form onSubmit={handleCreateItem} className="space-y-4">
+        <div className="bg-slate-950/60 border border-slate-900 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-600 to-fuchsia-600" />
+          
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-xl font-bold flex items-center gap-2 text-white">
+              <Plus className="text-violet-400" size={24} />
+              {editingId ? 'Редактировать товар' : 'Создать новый товар'}
+            </h2>
+            {editingId && (
+              <button 
+                onClick={() => {
+                  setEditingId(null);
+                  setTitle('');
+                  setDescription('');
+                }}
+                className="text-xs px-3 py-1 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                Отменить редактирование
+              </button>
+            )}
+          </div>
+          
+          <form onSubmit={handleSubmitItem} className="space-y-6">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Название товара</label>
               <input
@@ -223,7 +275,6 @@ export default function AdminShopPage() {
               </div>
             </div>
 
-            {/* Изображение */}
             <div className="space-y-2 border-t border-slate-900 pt-4">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Изображение (URL или файл)</label>
               <div className="flex gap-2">
@@ -242,7 +293,6 @@ export default function AdminShopPage() {
               </div>
             </div>
 
-            {/* Условия покупки */}
             <div className="space-y-3 border-t border-slate-900 pt-4">
               <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Условия открытия</h3>
               
@@ -271,7 +321,6 @@ export default function AdminShopPage() {
               </div>
             </div>
 
-            {/* Метаданные в зависимости от типа */}
             <div className="space-y-3 border-t border-slate-900 pt-4">
               <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Настройка внешнего вида</h3>
 
@@ -284,36 +333,6 @@ export default function AdminShopPage() {
                     onChange={(e) => setFrameClass(e.target.value)}
                     className="w-full px-4 py-2 rounded-xl border border-slate-900 bg-slate-950 font-mono text-xs text-white"
                   />
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <button
-                      type="button"
-                      onClick={() => setFrameClass('ring-4 ring-violet-500 ring-offset-2 ring-offset-slate-950 animate-pulse')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Фиолетовый неон
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFrameClass('ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-950 animate-pulse')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Синий неон
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFrameClass('ring-4 ring-amber-400 ring-offset-2 ring-offset-slate-950 shadow-lg shadow-amber-500/25')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Золотая
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFrameClass('ring-4 ring-rose-500 ring-offset-2 ring-offset-slate-950 shadow-lg shadow-rose-500/30')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Красный импульс
-                    </button>
-                  </div>
                 </div>
               )}
 
@@ -326,43 +345,6 @@ export default function AdminShopPage() {
                     onChange={(e) => setColorClass(e.target.value)}
                     className="w-full px-4 py-2 rounded-xl border border-slate-900 bg-slate-950 font-mono text-xs text-white"
                   />
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <button
-                      type="button"
-                      onClick={() => setColorClass('text-red-500 font-extrabold')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Красный
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setColorClass('text-emerald-400 font-extrabold')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Изумрудный
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setColorClass('text-cyan-400 font-extrabold')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Голубой
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setColorClass('bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent font-black')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Фиолетовый градиент
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setColorClass('bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent font-black animate-rainbow')}
-                      className="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                    >
-                      Радужный перелив
-                    </button>
-                  </div>
                 </div>
               )}
 
@@ -385,20 +367,12 @@ export default function AdminShopPage() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] text-slate-500 uppercase tracking-wider block">Цвет иконки</label>
-                    <div className="flex gap-2 items-center">
-                      <input
-                        type="color"
-                        value={badgeColor}
-                        onChange={(e) => setBadgeColor(e.target.value)}
-                        className="w-8 h-8 rounded border border-slate-800 bg-transparent cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={badgeColor}
-                        onChange={(e) => setBadgeColor(e.target.value)}
-                        className="flex-1 px-2 py-1.5 rounded border border-slate-900 bg-slate-950 font-mono text-xs text-white"
-                      />
-                    </div>
+                    <input
+                      type="color"
+                      value={badgeColor}
+                      onChange={(e) => setBadgeColor(e.target.value)}
+                      className="w-full h-8 rounded border border-slate-800 bg-transparent cursor-pointer"
+                    />
                   </div>
                 </div>
               )}
@@ -407,17 +381,17 @@ export default function AdminShopPage() {
             <button
               type="submit"
               disabled={actionLoading}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 transition-all duration-200 disabled:opacity-50 text-sm"
+              className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-xl font-bold shadow-lg shadow-violet-600/20 disabled:opacity-50 transition-all active:scale-[0.98] w-full"
             >
               {actionLoading ? (
                 <>
-                  <Loader2 className="animate-spin" size={16} />
+                  <Loader2 className="animate-spin" size={20} />
                   <span>Сохранение...</span>
                 </>
               ) : (
                 <>
-                  <Plus size={16} />
-                  <span>Создать товар</span>
+                  <Check size={20} />
+                  <span>{editingId ? 'Сохранить изменения' : 'Создать товар'}</span>
                 </>
               )}
             </button>
@@ -490,14 +464,22 @@ export default function AdminShopPage() {
                   <div className="flex items-center justify-between border-t border-slate-900/50 pt-3">
                     <span className="text-[10px] text-slate-600 font-mono">ID: {item.id.substring(0, 8)}...</span>
                     
-                    <button
-                      onClick={() => handleDeleteItem(item.id)}
-                      disabled={actionLoading}
-                      className="p-2 rounded-xl border border-slate-900 bg-slate-950/60 hover:bg-rose-950/20 text-slate-500 hover:text-rose-400 border border-slate-900 hover:border-rose-950/30 transition-all duration-200"
-                      title="Удалить товар"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => handleEditClick(item)}
+                        className="p-2 bg-slate-900/80 hover:bg-violet-500 rounded-lg text-slate-300 hover:text-white transition-colors"
+                        title="Редактировать товар"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="p-2 bg-slate-900/80 hover:bg-rose-500 rounded-lg text-rose-400 hover:text-white transition-colors"
+                        title="Удалить товар"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

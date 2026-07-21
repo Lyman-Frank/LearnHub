@@ -2,11 +2,37 @@
 // ═══════════════════════════════════════════════════════════
 // СТРАНИЦА МИНИ-ИГР — Админ (Хаб)
 // ═══════════════════════════════════════════════════════════
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Gamepad2, Settings, PenTool } from 'lucide-react';
+import { Gamepad2, Settings, PenTool, Save, Loader2 } from 'lucide-react';
+import { api } from '@/lib/api';
 
 export default function AdminMinigamesHub() {
+  const [xpConfig, setXpConfig] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.request('/minigames/config').then((data) => {
+      setXpConfig(data);
+      setLoading(false);
+    }).catch(console.error);
+  }, []);
+
+  const handleSaveConfig = async () => {
+    setSaving(true);
+    try {
+      await api.request('/minigames/config', {
+        method: 'POST',
+        body: JSON.stringify({ config: xpConfig })
+      });
+      window.customAlert('Настройки XP успешно сохранены!');
+    } catch (e: any) {
+      window.customAlert(e.message || 'Ошибка сохранения');
+    } finally {
+      setSaving(false);
+    }
+  };
   return (
     <div className="space-y-8 max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
       {/* Заголовок */}
@@ -73,6 +99,66 @@ export default function AdminMinigamesHub() {
           </div>
         </div>
 
+      </div>
+
+      {/* Настройки XP */}
+      <div className="mt-12 p-6 md:p-8 rounded-2xl bg-slate-900 border border-slate-800">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl">
+            <Gamepad2 size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Настройки наград (XP)</h2>
+            <p className="text-sm text-slate-400">Настройте количество опыта, которое студенты получают за первое прохождение уровней.</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center gap-2 text-slate-400">
+            <Loader2 className="animate-spin" size={20} /> Загрузка настроек...
+          </div>
+        ) : (
+          <div className="space-y-6 max-w-md">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">XP за уровень "Побег Робота"</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    value={xpConfig.ROBOT_ESCAPE ?? 25}
+                    onChange={(e) => setXpConfig({ ...xpConfig, ROBOT_ESCAPE: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">XP</div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">XP за уровень "2D Майнкрафт"</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    value={xpConfig.MINECRAFT_CRAFTING ?? 30}
+                    onChange={(e) => setXpConfig({ ...xpConfig, MINECRAFT_CRAFTING: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">XP</div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSaveConfig}
+              disabled={saving}
+              className="flex items-center justify-center gap-2 px-6 py-3 w-full bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-bold transition-all disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+              Сохранить настройки
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

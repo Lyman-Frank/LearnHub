@@ -15,6 +15,7 @@ import { CommandList } from './CommandList';
 import { SuccessModal } from './SuccessModal';
 import { Play, RotateCcw, Trash2, ChevronLeft, ChevronRight, Edit2, Check, BookOpen, AlertCircle } from 'lucide-react';
 import { DEFAULT_LEVELS } from './levels';
+import { api } from '@/lib/api';
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -38,6 +39,7 @@ interface RobotEscapeGameProps {
 export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
   const [levelsState, setLevelsState] = useState<LevelConfig[]>(customLevel ? [customLevel] : DEFAULT_LEVELS);
   const [levelIdx, setLevelIdx] = useState(0);
+  const [completedLevels, setCompletedLevels] = useState<string[]>([]);
   const level = levelsState[levelIdx] || levelsState[0];
 
   useEffect(() => {
@@ -52,6 +54,19 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
           }
         } catch (e) {}
       }
+      // Загрузка прогресса с бэкенда
+      api.getMinigameProgress('ROBOT_ESCAPE')
+        .then(progress => {
+          if (progress) {
+            setCompletedLevels(progress.map((p: any) => p.levelId));
+            // Ищем первый непройденный уровень, если сейчас на нулевом
+            const uncompletedIdx = DEFAULT_LEVELS.findIndex(l => !progress.find((p: any) => p.levelId === l.level_id.toString()));
+            if (uncompletedIdx > 0 && levelIdx === 0) {
+              setLevelIdx(uncompletedIdx);
+            }
+          }
+        })
+        .catch(() => {});
     }
   }, [customLevel]);
 
@@ -87,15 +102,15 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
 
   const cancelRef = useRef(false);
 
-  // Показываем обучение при старте уровня, если оно есть
+  // Показываем обучение при старте уровня, если оно есть и уровень еще не пройден
   useEffect(() => {
-    if (level.tutorial) {
+    if (level.tutorial && !completedLevels.includes(level.level_id.toString())) {
       setShowTutorial(true);
     } else {
       setShowTutorial(false);
     }
     handleReset();
-  }, [levelIdx]);
+  }, [levelIdx, level.tutorial, completedLevels, level.level_id]);
 
   // ─── Сброс ─────────────────────────────────────────────
   const handleReset = useCallback(() => {
@@ -280,6 +295,13 @@ export function RobotEscapeGame({ customLevel }: RobotEscapeGameProps) {
       if (result.finished) {
         setRunStatus('success');
         setShowSuccess(true);
+        if (!completedLevels.includes(level.level_id.toString())) {
+          setCompletedLevels(prev => [...prev, level.level_id.toString()]);
+          // Calculate stars based on coins collected (just an example, default to 3 if all coins, 1 otherwise)
+          const allCoinsCollected = level.coins ? result.collectedCoins.length === level.coins.length : true;
+          const stars = allCoinsCollected ? 3 : 1;
+          api.completeMinigameLevel('ROBOT_ESCAPE', level.level_id.toString(), stars).catch(() => {});
+        }
         return;
       }
     }

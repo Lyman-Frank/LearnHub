@@ -160,9 +160,9 @@ export default function CourseDetailPage({ params }: PageProps) {
     try {
       const res = await api.enrollCourse(courseId);
       setEnrollment(res.enrollment);
-      alert('Вы успешно записались на курс! 🎉');
+      window.customAlert('Вы успешно записались на курс! 🎉');
     } catch (err: any) {
-      alert(err.message || 'Ошибка записи на курс');
+      window.customAlert(err.message || 'Ошибка записи на курс');
     } finally {
       setEnrolling(false);
     }
@@ -195,7 +195,7 @@ export default function CourseDetailPage({ params }: PageProps) {
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (e) {
-      alert('Не удалось скачать сертификат');
+      window.customAlert('Не удалось скачать сертификат');
     }
   };
 

@@ -75,7 +75,7 @@ export function CourseStudentsMonitor({ courseId }: { courseId: string }) {
       setDetailedReport(report);
     } catch (err) {
       console.error('Ошибка загрузки детального отчета:', err);
-      alert('Не удалось загрузить отчет');
+      window.customAlert('Не удалось загрузить отчет');
     } finally {
       setLoadingReport(false);
     }

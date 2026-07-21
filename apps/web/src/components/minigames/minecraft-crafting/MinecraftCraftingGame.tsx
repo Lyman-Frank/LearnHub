@@ -32,11 +32,15 @@ const ObstacleIcons: Record<string, React.FC<SpriteProps>> = {
 
 interface Props {
   level: CraftingLevel;
+  isCompleted?: boolean;
+  onComplete?: () => void;
 }
 
 type DragSource = 'inventory' | number;
 
-export default function MinecraftCraftingGame({ level }: Props) {
+import { api } from '@/lib/api';
+
+export default function MinecraftCraftingGame({ level, isCompleted, onComplete }: Props) {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [grid, setGrid] = useState<(ItemId | null)[]>(Array(9).fill(null));
   
@@ -46,9 +50,16 @@ export default function MinecraftCraftingGame({ level }: Props) {
 
   const [draggedItem, setDraggedItem] = useState<{ id: ItemId, source: DragSource } | null>(null);
 
+  const [showTutorial, setShowTutorial] = useState(false);
+
   useEffect(() => {
     resetLevel();
-  }, [level]);
+    if (level.tutorial && !isCompleted) {
+      setShowTutorial(true);
+    } else {
+      setShowTutorial(false);
+    }
+  }, [level, isCompleted]);
 
   const resetLevel = () => {
     setInventory(level.initialInventory.map(item => ({...item})));
@@ -135,6 +146,10 @@ export default function MinecraftCraftingGame({ level }: Props) {
         
         setTimeout(() => {
           setGameState('won');
+          if (onComplete) onComplete();
+          if (!isCompleted) {
+            api.completeMinigameLevel('MINECRAFT_CRAFTING', level.id.toString(), 3).catch(() => {});
+          }
           setMessage('Уровень пройден! Препятствие разрушено.');
         }, 2000); // Wait for Steve to walk and hit
       } else {
@@ -247,6 +262,23 @@ export default function MinecraftCraftingGame({ level }: Props) {
           
           <div className="flex-1 w-full">
             <h3 className="text-[#373737] uppercase tracking-widest text-sm mb-4 font-bold">Сетка Крафта</h3>
+            {/* Обучающий оверлей-модалка */}
+            {showTutorial && level.tutorial && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md animate-fade-in p-4">
+                <div className="relative max-w-md w-full rounded-3xl border border-violet-500/30 bg-gradient-to-b from-[#130d2a] to-[#0a0618] p-8 flex flex-col gap-5 text-center shadow-2xl shadow-violet-900/40">
+                  <div>
+                    <h3 className="text-xl font-black text-white">{level.tutorial.title}</h3>
+                    <p className="text-slate-400 text-xs mt-3 leading-relaxed">{level.tutorial.content}</p>
+                  </div>
+                  <button
+                    onClick={() => setShowTutorial(false)}
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-black text-xs hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-md cursor-pointer"
+                  >
+                    Понятно, давай крафтить!
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-1 w-max mx-auto bg-[#c6c6c6]">
               {grid.map((cellId, index) => {
                 const Icon = cellId ? (ItemIcons[cellId] || TrashItem) : null;

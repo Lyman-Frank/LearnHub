@@ -35,7 +35,7 @@ export default function AdminCoursesPage() {
       const updated = await api.adminUpdateCourseStatus(id, status);
       setCourses(prev => prev.map(c => c.id === id ? { ...c, status: updated.status } : c));
     } catch (err: any) {
-      alert(err.message || 'Ошибка обновления статуса');
+      window.customAlert(err.message || 'Ошибка обновления статуса');
     } finally {
       setUpdating(null);
     }
@@ -47,7 +47,7 @@ export default function AdminCoursesPage() {
       await api.adminUpdateCourseStatus(id, 'UNDER_REVIEW');
       router.push(`/admin/courses/${id}/preview`);
     } catch (err: any) {
-      alert(err.message || 'Ошибка запуска проверки');
+      window.customAlert(err.message || 'Ошибка запуска проверки');
     } finally {
       setUpdating(null);
     }

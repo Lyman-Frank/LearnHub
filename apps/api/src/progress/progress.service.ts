@@ -344,10 +344,14 @@ export class ProgressService {
       return { enrollments: enrollmentsCount, completedSteps: 0, coursesCount, xp: 0, streak: 0 };
     }
 
-    const [user, enrollments, completedSteps] = await Promise.all([
+    const [user, enrollments, completedSteps, timeSpentResult] = await Promise.all([
       this.prisma.user.findUnique({ where: { id: userId }, select: { xp: true, streak: true } }),
       this.prisma.enrollment.count({ where: { userId } }),
       this.prisma.stepProgress.count({ where: { userId, isCompleted: true } }),
+      this.prisma.stepProgress.aggregate({
+        where: { userId },
+        _sum: { timeSpent: true },
+      }),
     ]);
 
     return {
@@ -356,10 +360,11 @@ export class ProgressService {
       coursesCount: 0,
       xp: user?.xp ?? 0,
       streak: user?.streak ?? 0,
+      timeSpent: timeSpentResult._sum.timeSpent ?? 0,
     };
   }
 
-  async getUserProfile(userId: string) {
+  async getUserProfile(userId: string, currentUserId?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -367,28 +372,50 @@ export class ProgressService {
         firstName: true,
         lastName: true,
         email: true,
-        avatarUrl: true,
         role: true,
+        avatarUrl: true,
         createdAt: true,
-        xp: true,
-        streak: true,
+        institutionType: true,
+        institutionName: true,
+        privacySettings: true,
         subscriptionExpiresAt: true,
         ownedItems: {
           where: { isEquipped: true },
           include: { item: true }
+        },
+        enrollments: {
+          include: { course: true }
         }
       }
     });
     if (!user) throw new Error('Пользователь не найден');
 
-    const stats = await this.getUserStats(userId, user.role);
+    let stats = await this.getUserStats(userId, user.role);
 
-    const badges = await this.prisma.userBadge.findMany({
+    let badges = await this.prisma.userBadge.findMany({
       where: { userId },
-      include: {
-        badge: true
-      }
+      include: { badge: true }
     });
+
+    const isOwn = userId === currentUserId;
+    if (!isOwn) {
+      user.email = undefined; // hide email
+      if (user.privacySettings) {
+        try {
+          const p = JSON.parse(user.privacySettings);
+          if (p.badges === false) badges = [];
+          if (p.courses === false) user.enrollments = [];
+          if (p.shop === false) user.ownedItems = [];
+          if (p.institution === false) {
+            user.institutionType = null;
+            user.institutionName = null;
+          }
+          if (p.stats === false) {
+            stats = null;
+          }
+        } catch (e) {}
+      }
+    }
 
     return {
       user,

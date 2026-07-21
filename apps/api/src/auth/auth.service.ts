@@ -240,6 +240,30 @@ export class AuthService {
     };
   }
 
+  async updateProfile(userId: string, data: { firstName?: string; lastName?: string; email?: string; institutionType?: string; institutionName?: string }) {
+    if (data.email) {
+      const existing = await this.usersService.findByEmail(data.email);
+      if (existing && existing.id !== userId) {
+        throw new BadRequestException('Пользователь с таким email уже существует');
+      }
+    }
+    
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data
+    });
+    
+    return this.excludePassword(user);
+  }
+
+  async updatePrivacy(userId: string, privacySettings: string) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { privacySettings }
+    });
+    return this.excludePassword(user);
+  }
+
   private excludePassword<T extends { passwordHash: string }>(user: T) {
     const { passwordHash, ...rest } = user;
     return rest;

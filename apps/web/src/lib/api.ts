@@ -162,6 +162,19 @@ export const api = {
     return fetchApi<any>(`/invites/${id}/deactivate`, 'PATCH');
   },
 
+  // === МИНИ-ИГРЫ ===
+  async getMinigameProgress(gameType: string): Promise<any[]> {
+    return fetchApi<any[]>(`/minigames/progress/${gameType}`, 'GET');
+  },
+
+  async completeMinigameLevel(gameType: string, levelId: string, stars: number = 0): Promise<any> {
+    return fetchApi<any>('/minigames/complete', 'POST', { gameType, levelId, stars });
+  },
+
+  async getMinigameConfig(): Promise<any> {
+    return fetchApi<any>('/minigames/config', 'GET');
+  },
+
   // === КУРСЫ ===
   async getAuthorCourses(): Promise<any[]> {
     return fetchApi<any[]>('/courses/author', 'GET');

@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react';
 import MinecraftCraftingGame from '@/components/minigames/minecraft-crafting/MinecraftCraftingGame';
 import { CraftingLevel } from '@/components/minigames/minecraft-crafting/types';
 import { DEFAULT_MC_LEVELS } from '@/components/minigames/minecraft-crafting/levels';
+import { api } from '@/lib/api';
 
 export default function MinecraftCraftingStudentPage() {
   const [levels, setLevels] = useState<CraftingLevel[]>([]);
   const [selectedLevelId, setSelectedLevelId] = useState<number>(1);
+  const [completedLevels, setCompletedLevels] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -21,13 +23,29 @@ export default function MinecraftCraftingStudentPage() {
       } catch (e) {}
     }
     // Only show published levels to students
-    const published = loadedLevels.filter(l => l.status === 'published');
+    const published = loadedLevels.filter((l: any) => l.status === 'published');
     if (published.length === 0) {
       published.push(DEFAULT_MC_LEVELS[0]); // fallback
     }
     setLevels(published);
-    setSelectedLevelId(published[0].id);
-    setIsLoaded(true);
+
+    api.getMinigameProgress('MINECRAFT_CRAFTING')
+      .then(progress => {
+        if (progress) {
+          const completedIds = progress.map((p: any) => p.levelId);
+          setCompletedLevels(completedIds);
+          // Выбираем первый непройденный уровень
+          const uncompleted = published.find(l => !completedIds.includes(l.id.toString()));
+          setSelectedLevelId(uncompleted ? uncompleted.id : published[0].id);
+        } else {
+          setSelectedLevelId(published[0].id);
+        }
+        setIsLoaded(true);
+      })
+      .catch(() => {
+        setSelectedLevelId(published[0].id);
+        setIsLoaded(true);
+      });
   }, []);
 
   if (!isLoaded) return null;
@@ -61,7 +79,16 @@ export default function MinecraftCraftingStudentPage() {
       
       {/* Container for the game */}
       <div className="w-full">
-        <MinecraftCraftingGame level={currentLevel} key={currentLevel.id} />
+        <MinecraftCraftingGame 
+          level={currentLevel} 
+          key={currentLevel.id}
+          isCompleted={completedLevels.includes(currentLevel.id.toString())}
+          onComplete={() => {
+            if (!completedLevels.includes(currentLevel.id.toString())) {
+              setCompletedLevels(prev => [...prev, currentLevel.id.toString()]);
+            }
+          }}
+        />
       </div>
     </div>
   );

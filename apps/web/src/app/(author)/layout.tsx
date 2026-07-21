@@ -60,7 +60,7 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
     try {
       await api.activateInviteKey(activationCode.trim());
       setIsExpired(false);
-      alert('Лицензионный ключ успешно активирован! Доступ предоставлен.');
+      window.customAlert('Лицензионный ключ успешно активирован! Доступ предоставлен.');
       window.location.reload();
     } catch (err: any) {
       setActivationError(err.message || 'Неверный или просроченный ключ доступа');

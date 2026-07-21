@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 
@@ -12,6 +12,16 @@ enum UserRole {
   STUDENT
   TEACHER
   ADMIN
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON string or plain text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
 }
 
 model User {
@@ -44,9 +54,11 @@ model User {
   notifications   Notification[]
   institutionType String?
   institutionName String?
+  privacySettings String?
   teacherGroups   Group[]              @relation("TeacherGroups")
   groupMemberships GroupMember[]
   ownedItems      UserItem[]
+  minigameProgress MinigameProgress[]
 
   @@index([email])
   @@index([role])
@@ -367,4 +379,20 @@ model UserItem {
   @@index([itemId])
 }
 
+model MinigameProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  gameType    String    // "ROBOT_ESCAPE" | "MINECRAFT_CRAFTING"
+  levelId     String
+  isCompleted Boolean   @default(false)
+  stars       Int       @default(0)
+  xpEarned    Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, gameType, levelId])
+  @@index([userId])
+  @@index([gameType])
+}

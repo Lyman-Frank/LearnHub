@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
       await api.deactivateInvite(id);
       fetchInvites();
     } catch (err: any) {
-      alert(err.message || 'Ошибка деактивации');
+      window.customAlert(err.message || 'Ошибка деактивации');
     }
   };
 

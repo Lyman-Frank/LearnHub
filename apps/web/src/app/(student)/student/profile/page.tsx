@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { User as UserIcon, BookOpen, CheckCircle, Award, Edit3, Loader2, Download, Shield, MessageSquare } from 'lucide-react';
+import { User as UserIcon, BookOpen, CheckCircle, Award, Edit3, Loader2, Download, Shield, MessageSquare, Settings } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { api } from '@/lib/api';
+import { ProfileSettingsModal } from '@/components/profile-settings-modal';
 
 function ProfileContent() {
   const searchParams = useSearchParams();
@@ -17,34 +18,36 @@ function ProfileContent() {
   const [certificates, setCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOwnProfile, setIsOwnProfile] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const loadProfile = async () => {
+    setLoading(true);
+    const currentUser = auth.getUser();
+    const targetUserId = queryUserId || currentUser?.id;
+    if (!targetUserId) {
+      setLoading(false);
+      return;
+    }
+    setIsOwnProfile(targetUserId === currentUser?.id);
+
+    try {
+      const data = await api.getUserProfile(targetUserId);
+      setUser(data.user);
+      setStats(data.stats);
+      setBadges(data.badges);
+      
+      if (targetUserId === currentUser?.id) {
+        const certs = await api.getMyCertificates().catch(() => []);
+        setCertificates(certs);
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки профиля:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadProfile = async () => {
-      setLoading(true);
-      const currentUser = auth.getUser();
-      const targetUserId = queryUserId || currentUser?.id;
-      if (!targetUserId) {
-        setLoading(false);
-        return;
-      }
-      setIsOwnProfile(targetUserId === currentUser?.id);
-
-      try {
-        const data = await api.getUserProfile(targetUserId);
-        setUser(data.user);
-        setStats(data.stats);
-        setBadges(data.badges);
-        
-        if (targetUserId === currentUser?.id) {
-          const certs = await api.getMyCertificates().catch(() => []);
-          setCertificates(certs);
-        }
-      } catch (err) {
-        console.error('Ошибка загрузки профиля:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadProfile();
   }, [queryUserId]);
 
@@ -60,7 +63,7 @@ function ProfileContent() {
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (e) {
-      alert('Не удалось скачать сертификат');
+      window.customAlert('Не удалось скачать сертификат');
     }
   };
 
@@ -128,9 +131,21 @@ function ProfileContent() {
                   })}
                 </h1>
                 <p className="text-slate-400 text-sm mt-1">{user.email}</p>
-                <span className="inline-block mt-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-bold uppercase tracking-wider">
-                  {user.role === 'ADMIN' ? 'Администратор' : user.role === 'TEACHER' ? 'Преподаватель' : 'Студент'}
-                </span>
+                {isOwnProfile ? (
+                  <div className="flex gap-2 mt-2">
+                    <button 
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="px-3 py-1 rounded-full border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
+                    >
+                      <Settings size={12} />
+                      Настройки
+                    </button>
+                  </div>
+                ) : (
+                  <span className="inline-block mt-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-bold uppercase tracking-wider">
+                    {user.role === 'ADMIN' ? 'Администратор' : user.role === 'TEACHER' ? 'Преподаватель' : 'Студент'}
+                  </span>
+                )}
               </div>
               
               {!isOwnProfile && (
@@ -174,24 +189,110 @@ function ProfileContent() {
         </div>
       </div>
 
-      {/* Информация об аккаунте */}
-      <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Данные аккаунта</h2>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center py-2 border-b border-slate-900">
-            <span className="text-sm text-slate-400">Email</span>
-            <span className="text-sm font-medium text-slate-200">{user.email}</span>
+      {/* Информация об аккаунте / Учебное заведение */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Account Data - Only show if own profile OR public fields exist */}
+        {(isOwnProfile || user.firstName || user.lastName) && (
+          <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Данные аккаунта</h2>
+            <div className="space-y-3">
+              {user.email && (
+                <div className="flex justify-between items-center py-2 border-b border-slate-900">
+                  <span className="text-sm text-slate-400">Email</span>
+                  <span className="text-sm font-medium text-slate-200">{user.email}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center py-2 border-b border-slate-900">
+                <span className="text-sm text-slate-400">Имя</span>
+                <span className="text-sm font-medium text-slate-200">{user.firstName || 'Не указано'}</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-sm text-slate-400">Фамилия</span>
+                <span className="text-sm font-medium text-slate-200">{user.lastName || 'Не указано'}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-slate-900">
-            <span className="text-sm text-slate-400">Имя</span>
-            <span className="text-sm font-medium text-slate-200">{user.firstName}</span>
+        )}
+
+        {/* Institution Data */}
+        {(isOwnProfile || user.institutionType || user.institutionName) && (
+          <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Учебное заведение</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2 border-b border-slate-900">
+                <span className="text-sm text-slate-400">Тип</span>
+                <span className="text-sm font-medium text-slate-200">{
+                  user.institutionType === 'school' ? 'Школа' :
+                  user.institutionType === 'college' ? 'Колледж/Техникум' :
+                  user.institutionType === 'university' ? 'Университет' :
+                  user.institutionType === 'other' ? 'Другое' : 'Не указано'
+                }</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-sm text-slate-400">Название</span>
+                <span className="text-sm font-medium text-slate-200">{user.institutionName || 'Не указано'}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-slate-400">Фамилия</span>
-            <span className="text-sm font-medium text-slate-200">{user.lastName}</span>
-          </div>
-        </div>
+        )}
       </div>
+
+      {/* Пройденные курсы (Enrollments) */}
+      {(isOwnProfile || (user.enrollments && user.enrollments.length > 0)) && (
+        <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <BookOpen size={16} className="text-blue-500" />
+            {isOwnProfile ? 'Мои Курсы' : 'Курсы'}
+          </h2>
+          {(!user.enrollments || user.enrollments.length === 0) ? (
+            <div className="text-slate-500 text-sm">Нет активных курсов.</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {user.enrollments.map((enr: any) => (
+                <Link key={enr.id} href={`/student/course/${enr.courseId}`} className="group p-4 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition-colors flex flex-col gap-2">
+                  <div className="text-sm font-bold text-slate-200 line-clamp-2 group-hover:text-violet-400 transition-colors">
+                    {enr.course?.title || 'Курс'}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-auto">
+                    Записан(а): {new Date(enr.createdAt).toLocaleDateString()}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Купленные товары (Shop Items) */}
+      {(isOwnProfile || (user.ownedItems && user.ownedItems.length > 0)) && (
+        <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <Zap size={16} className="text-fuchsia-500" />
+            {isOwnProfile ? 'Мои Покупки' : 'Покупки'}
+          </h2>
+          {(!user.ownedItems || user.ownedItems.length === 0) ? (
+            <div className="text-slate-500 text-sm">Нет купленных товаров.</div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {user.ownedItems.map((ui: any) => {
+                const item = ui.item;
+                if (!item) return null;
+                let meta = { color: '#8b5cf6', image: '' };
+                try { meta = JSON.parse(item.metadata); } catch(e){}
+                return (
+                  <div key={ui.id} className="p-4 rounded-xl border border-slate-800 bg-slate-900 flex flex-col items-center text-center gap-2">
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center border border-slate-700" style={{ backgroundColor: `${meta.color}20` }}>
+                      <Award size={24} style={{ color: meta.color }} />
+                    </div>
+                    <div className="text-sm font-bold text-slate-200 mt-2">{item.name}</div>
+                    <div className="text-xs text-slate-500">{item.type === 'BADGE' ? 'Значок профиля' : 'Рамка аватара'}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Достижения */}
       <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
@@ -213,7 +314,7 @@ function ProfileContent() {
                       <img
                         src={badge.iconUrl}
                         alt={badge.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           const target = e.currentTarget;
                           target.style.display = 'none';
@@ -279,6 +380,15 @@ function ProfileContent() {
             </div>
           )}
         </div>
+      )}
+
+      {isOwnProfile && (
+        <ProfileSettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+          currentUser={user} 
+          onUpdate={loadProfile}
+        />
       )}
     </div>
   );
