@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Loading } from '@/components/ui/loading';
 import { NotificationBell } from '@/components/notification-bell';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 
 export default function AuthorLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -140,7 +140,7 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
                 Преподаватель
               </span>
             </Link>
-            <ThemeToggle />
+
             <NotificationBell />
             <button
               onClick={handleLogout}

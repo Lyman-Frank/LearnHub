@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -61,7 +61,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10 overflow-y-auto">
         {/* Theme Toggle */}
         <div className="absolute top-4 right-4 z-20">
-          <ThemeToggle />
+
         </div>
         <div className="w-full max-w-md">
           {/* Мобильный логотип */}

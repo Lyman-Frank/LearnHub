@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
 import { api } from '@/lib/api';
 import { NotificationBell } from '@/components/notification-bell';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -179,7 +179,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                 Студент
               </span>
             </Link>
-            <ThemeToggle />
+
             <NotificationBell />
             <button
               onClick={handleLogout}

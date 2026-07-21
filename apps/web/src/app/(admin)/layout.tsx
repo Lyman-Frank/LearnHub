@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
 import { NotificationBell } from '@/components/notification-bell';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -125,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 Admin
               </span>
             </div>
-            <ThemeToggle />
+
             <NotificationBell />
             <button
               onClick={handleLogout}

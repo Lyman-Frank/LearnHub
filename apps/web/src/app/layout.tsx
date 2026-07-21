@@ -22,21 +22,6 @@ export const metadata: Metadata = {
   ],
 };
 
-// Inline script to prevent flash of wrong theme
-const themeScript = `
-  (function() {
-    try {
-      var theme = localStorage.getItem('learnhub_theme');
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    } catch(e) {
-      document.documentElement.classList.remove('dark');
-    }
-  })();
-`;
 
 export default function RootLayout({
   children,
@@ -44,9 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`${inter.variable}`} suppressHydrationWarning>
+    <html lang="ru" className={`dark ${inter.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-screen antialiased">
         {children}
