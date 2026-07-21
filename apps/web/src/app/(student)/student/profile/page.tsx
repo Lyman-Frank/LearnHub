@@ -208,13 +208,16 @@ function ProfileContent() {
               const badgeId = item.id || badge.id;
               return (
                 <div key={badgeId} className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 flex flex-col items-center text-center space-y-2 hover:border-amber-500/40 transition-colors">
-                  <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
-                    {badge.iconUrl ? (
-                      <img src={badge.iconUrl} alt={badge.name} className="w-8 h-8 object-contain" />
-                    ) : (
-                      <Shield size={24} />
-                    )}
-                  </div>
+                  {badge.iconUrl ? (
+                    <div className="relative w-20 h-20 mb-2">
+                      <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-md" />
+                      <img src={badge.iconUrl} alt={badge.name} className="relative w-full h-full rounded-full object-cover border-2 border-amber-500/30 shadow-lg shadow-amber-500/10" />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 mb-2">
+                      <Shield size={28} />
+                    </div>
+                  )}
                   <div>
                     <div className="text-sm font-bold text-slate-200">{badge.name || 'Достижение'}</div>
                     <div className="text-xs text-slate-500 mt-1 leading-tight">{badge.description || ''}</div>
