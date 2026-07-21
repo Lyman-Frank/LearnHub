@@ -210,7 +210,20 @@ function ProfileContent() {
                 <div key={badgeId} className="group rounded-2xl border border-amber-500/20 bg-gradient-to-b from-amber-500/5 to-slate-950/80 overflow-hidden hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300">
                   {badge.iconUrl ? (
                     <div className="w-full aspect-square overflow-hidden">
-                      <img src={badge.iconUrl} alt={badge.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img
+                        src={badge.iconUrl}
+                        alt={badge.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.classList.add('bg-amber-500/10', 'flex', 'items-center', 'justify-center');
+                            parent.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>';
+                          }
+                        }}
+                      />
                     </div>
                   ) : (
                     <div className="w-full aspect-square bg-amber-500/10 flex items-center justify-center text-amber-400">

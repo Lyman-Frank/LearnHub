@@ -66,6 +66,15 @@ async function main() {
     }
   }
 
+  // Delete old badges that are no longer in the list
+  const badgeNames = badges.map(b => b.name);
+  const deleted = await prisma.badge.deleteMany({
+    where: { name: { notIn: badgeNames } }
+  });
+  if (deleted.count > 0) {
+    console.log(`Deleted ${deleted.count} old badge(s).`);
+  }
+
   console.log('Done!');
 }
 
