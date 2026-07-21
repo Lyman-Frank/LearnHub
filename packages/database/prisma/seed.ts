@@ -8,39 +8,46 @@ async function main() {
   const badges = [
     {
       name: 'Первые шаги',
-      description: 'Завершите 1 шаг на платформе.',
-      iconUrl: '/badges/first_step.png',
-      requirementType: 'STEPS_COMPLETED',
+      description: 'Достижение за прохождение первого урока',
+      iconUrl: '/achievements/first-steps.jpg',
+      requirementType: 'COURSE_COMPLETED',
       requirementValue: 1,
     },
     {
-      name: 'Ученик',
-      description: 'Завершите 10 шагов.',
-      iconUrl: '/badges/10_steps.png',
-      requirementType: 'STEPS_COMPLETED',
-      requirementValue: 10,
-    },
-    {
-      name: 'Первая кровь',
-      description: 'Получите 100 XP.',
-      iconUrl: '/badges/first_blood.png',
-      requirementType: 'XP_EARNED',
-      requirementValue: 100,
-    },
-    {
-      name: 'Огонек',
-      description: 'Поддерживайте стрик 3 дня подряд.',
-      iconUrl: '/badges/streak_3.png',
+      name: 'Непрерывный поток',
+      description: 'За вход на платформу 3 дня подряд',
+      iconUrl: '/achievements/streak.jpg',
       requirementType: 'STREAK',
       requirementValue: 3,
     },
     {
-      name: 'Выпускник',
-      description: 'Успешно завершите свой первый курс.',
-      iconUrl: '/badges/graduate.png',
+      name: 'Знаток',
+      description: 'За успешное завершение 5 курсов',
+      iconUrl: '/achievements/expert.jpg',
       requirementType: 'COURSE_COMPLETED',
+      requirementValue: 5,
+    },
+    {
+      name: 'Победитель роботов',
+      description: 'За полное прохождение мини-игры "Побег робота"',
+      iconUrl: '/achievements/robot.jpg',
+      requirementType: 'MINIGAME_COMPLETED',
       requirementValue: 1,
     },
+    {
+      name: 'Мастер крафта',
+      description: 'За успешный крафт в мини-игре "2D Майнкрафт"',
+      iconUrl: '/achievements/craft.jpg',
+      requirementType: 'MINIGAME_CRAFTING',
+      requirementValue: 1,
+    },
+    {
+      name: 'Ученик месяца',
+      description: 'За занятие 1-го места в таблице лидеров',
+      iconUrl: '/achievements/crown.jpg',
+      requirementType: 'LEADERBOARD_TOP',
+      requirementValue: 1,
+    }
   ];
 
   for (const badge of badges) {
@@ -51,7 +58,11 @@ async function main() {
       await prisma.badge.create({ data: badge });
       console.log(`Created badge: ${badge.name}`);
     } else {
-      console.log(`Badge ${badge.name} already exists.`);
+      await prisma.badge.update({
+        where: { id: existing.id },
+        data: badge
+      });
+      console.log(`Updated badge: ${badge.name}`);
     }
   }
 
