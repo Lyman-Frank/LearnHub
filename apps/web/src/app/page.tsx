@@ -12,7 +12,6 @@ import {
   Brain,
   Trophy,
   Sun,
-  Moon,
   Rocket,
   CheckCircle,
   Star,
@@ -122,35 +121,8 @@ const stats = [
    MAIN PAGE COMPONENT
    ═════════════════════════════════════════════ */
 export default function HomePage() {
-  const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  /* ── Load theme preference from localStorage on mount ── */
-  useEffect(() => {
-    const stored = localStorage.getItem('learnhub_theme');
-    if (stored === 'dark') {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  /* ── Dark mode toggle function ── */
-  const toggleTheme = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-    const html = document.documentElement;
-    if (newIsDark) {
-      html.classList.add('dark');
-      localStorage.setItem('learnhub_theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      localStorage.setItem('learnhub_theme', 'light');
-    }
-  };
 
   /* ── Scroll detection for navbar ── */
   useEffect(() => {
@@ -206,19 +178,6 @@ export default function HomePage() {
 
           {/* Right-side Actions */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="relative p-2.5 rounded-xl transition-all duration-300 hover:bg-violet-500/10 group"
-              aria-label="Toggle dark mode"
-              id="btn-theme-toggle"
-            >
-              {isDark ? (
-                <Sun className="w-5 h-5 text-violet-400 group-hover:text-violet-300 transition-colors" />
-              ) : (
-                <Moon className="w-5 h-5 text-violet-600 group-hover:text-violet-700 transition-colors" />
-              )}
-            </button>
 
             <Link href="/login" className="btn-secondary text-sm py-2 px-5" id="btn-login">
               Войти
@@ -270,19 +229,6 @@ export default function HomePage() {
                 Контакты
               </a>
               <hr className="border-violet-500/20" />
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={toggleTheme}
-                  className="p-2.5 rounded-xl hover:bg-violet-500/10 transition-colors"
-                  aria-label="Toggle dark mode"
-                >
-                  {isDark ? (
-                    <Sun className="w-5 h-5 text-violet-400" />
-                  ) : (
-                    <Moon className="w-5 h-5 text-violet-600" />
-                  )}
-                </button>
-              </div>
               <Link href="/login" className="btn-secondary flex justify-center text-sm w-full py-2">Войти</Link>
               <Link href="/register" className="btn-primary flex justify-center text-sm w-full py-2">
                 <Zap className="w-4 h-4" />
