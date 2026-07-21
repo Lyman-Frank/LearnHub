@@ -207,20 +207,19 @@ function ProfileContent() {
               const badge = item.badge ? item.badge : item;
               const badgeId = item.id || badge.id;
               return (
-                <div key={badgeId} className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 flex flex-col items-center text-center space-y-2 hover:border-amber-500/40 transition-colors">
+                <div key={badgeId} className="group rounded-2xl border border-amber-500/20 bg-gradient-to-b from-amber-500/5 to-slate-950/80 overflow-hidden hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300">
                   {badge.iconUrl ? (
-                    <div className="relative w-20 h-20 mb-2">
-                      <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-md" />
-                      <img src={badge.iconUrl} alt={badge.name} className="relative w-full h-full rounded-full object-cover border-2 border-amber-500/30 shadow-lg shadow-amber-500/10" />
+                    <div className="w-full aspect-square overflow-hidden">
+                      <img src={badge.iconUrl} alt={badge.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 mb-2">
-                      <Shield size={28} />
+                    <div className="w-full aspect-square bg-amber-500/10 flex items-center justify-center text-amber-400">
+                      <Shield size={36} />
                     </div>
                   )}
-                  <div>
+                  <div className="p-3 text-center">
                     <div className="text-sm font-bold text-slate-200">{badge.name || 'Достижение'}</div>
-                    <div className="text-xs text-slate-500 mt-1 leading-tight">{badge.description || ''}</div>
+                    <div className="text-[11px] text-slate-500 mt-1 leading-tight">{badge.description || ''}</div>
                   </div>
                 </div>
               );
