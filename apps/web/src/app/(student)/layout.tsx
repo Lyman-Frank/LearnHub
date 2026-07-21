@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, BookOpen, User as UserIcon, Search, Trophy, MessageSquare, ShoppingBag, Gamepad2 } from 'lucide-react';
+import { LogOut, BookOpen, User as UserIcon, Search, Trophy, MessageSquare, ShoppingBag, Gamepad2, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
@@ -17,6 +17,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
   const [userStats, setUserStats] = useState({ xp: 0, streak: 0 });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const user = auth.getUser();
@@ -184,8 +185,14 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <PwaInstallPrompt />
             <NotificationBell />
             <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2.5 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/50 text-slate-400 transition-all duration-200"
+            >
+              <Menu size={18} />
+            </button>
+            <button
               onClick={handleLogout}
-              className="p-2.5 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/50 text-slate-400 hover:text-rose-400 transition-all duration-200"
+              className="hidden md:flex p-2.5 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/50 text-slate-400 hover:text-rose-400 transition-all duration-200"
               title="Выйти из аккаунта"
             >
               <LogOut size={18} />
@@ -198,6 +205,52 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8">
         {children}
       </main>
+
+      {/* Мобильное меню */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col">
+          <div className="h-16 border-b border-slate-900 px-4 flex items-center justify-between">
+            <Link href="/student/dashboard" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/10">
+                <span className="font-extrabold text-sm tracking-tighter">L</span>
+              </div>
+              <span className="font-black text-lg">LearnHub</span>
+            </Link>
+            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-white">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-4">
+            <Link href="/student/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <BookOpen size={18} className="text-violet-400" /> Обучение
+            </Link>
+            <Link href="/student/catalog" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <Search size={18} className="text-violet-400" /> Каталог
+            </Link>
+            <Link href="/student/leaderboard" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <Trophy size={18} className="text-violet-400" /> Лидерборд
+            </Link>
+            <Link href="/student/shop" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <ShoppingBag size={18} className="text-violet-400" /> Магазин
+            </Link>
+            <Link href="/student/chat" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <MessageSquare size={18} className="text-violet-400" /> Чат
+            </Link>
+            <Link href="/student/minigames" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <Gamepad2 size={18} className="text-violet-400" /> Мини-игры
+            </Link>
+            
+            <div className="mt-auto pt-4 border-t border-slate-900 flex flex-col gap-2">
+              <Link href="/student/profile" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+                <UserIcon size={18} className="text-violet-400" /> Профиль ({userName})
+              </Link>
+              <button onClick={handleLogout} className="px-4 py-3 rounded-xl border border-rose-900/30 bg-rose-500/10 text-rose-400 flex items-center gap-3 text-left">
+                <LogOut size={18} /> Выйти
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

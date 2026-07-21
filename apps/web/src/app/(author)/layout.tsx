@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, GraduationCap, LayoutDashboard, PlusCircle, MessageSquare, Key, AlertCircle, Loader2, Gamepad2 } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, BookOpen, Settings, Gamepad2, Menu, X, MessageSquare, Key, AlertCircle, Loader2, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { api } from '@/lib/api';
@@ -16,6 +16,7 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [activationCode, setActivationCode] = useState('');
   const [activating, setActivating] = useState(false);
@@ -145,8 +146,14 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
             <PwaInstallPrompt />
             <NotificationBell />
             <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2.5 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/50 text-slate-400 transition-all duration-200"
+            >
+              <Menu size={18} />
+            </button>
+            <button
               onClick={handleLogout}
-              className="p-2.5 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/50 text-slate-400 hover:text-rose-400 transition-all duration-200"
+              className="hidden md:flex p-2.5 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/50 text-slate-400 hover:text-rose-400 transition-all duration-200"
               title="Выйти из аккаунта"
             >
               <LogOut size={18} />
@@ -211,6 +218,46 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
           children
         )}
       </main>
+
+      {/* Мобильное меню */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col">
+          <div className="h-16 border-b border-slate-900 px-4 flex items-center justify-between">
+            <Link href="/author/dashboard" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-fuchsia-600 to-violet-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/10">
+                <span className="font-extrabold text-sm tracking-tighter">L</span>
+              </div>
+              <span className="font-black text-lg">LearnHub</span>
+            </Link>
+            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-white">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-4">
+            <Link href="/author/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <LayoutDashboard size={18} className="text-fuchsia-400" /> Панель Автора
+            </Link>
+            <Link href="/author/groups" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <Users size={18} className="text-fuchsia-400" /> Мои Классы
+            </Link>
+            <Link href="/author/minigames" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <Gamepad2 size={18} className="text-fuchsia-400" /> Мини-игры
+            </Link>
+            <Link href="/author/chat" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+              <MessageSquare size={18} className="text-fuchsia-400" /> Чат
+            </Link>
+            
+            <div className="mt-auto pt-4 border-t border-slate-900 flex flex-col gap-2">
+              <Link href="/author/profile" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/50 flex items-center gap-3">
+                <GraduationCap size={18} className="text-fuchsia-400" /> Профиль ({userName})
+              </Link>
+              <button onClick={handleLogout} className="px-4 py-3 rounded-xl border border-rose-900/30 bg-rose-500/10 text-rose-400 flex items-center gap-3 text-left">
+                <LogOut size={18} /> Выйти
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

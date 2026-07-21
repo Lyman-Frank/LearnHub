@@ -87,20 +87,20 @@
   --color-slate-950: #1b262c;
 
   /* ── Design System Tokens ── */
-  --color-bg-light: #F5F5F5;
+  --color-bg-light: #1b262c;
   --color-bg-dark: #1b262c;
-  --color-card-light: #FFFFFF;
+  --color-card-light: #0f4c75;
   --color-card-dark: #0f4c75;
   --color-card-dark-hover: #145a82;
   --color-primary: #3282b8;
   --color-primary-hover: #2a6f9e;
   --color-primary-dark: #3282b8;
   --color-primary-dark-hover: #bbe1fa;
-  --color-text-light: #0f4c75;
+  --color-text-light: #bbe1fa;
   --color-text-dark: #bbe1fa;
-  --color-text-muted-light: #4a7a8c;
+  --color-text-muted-light: #8ab0be;
   --color-text-muted-dark: #8ab0be;
-  --color-surface-glass-light: rgba(235, 255, 250, 0.7);
+  --color-surface-glass-light: rgba(15, 76, 117, 0.45);
   --color-surface-glass-dark: rgba(15, 76, 117, 0.45);
   --color-border-glass-light: rgba(13, 206, 218, 0.15);
   --color-border-glass-dark: rgba(50, 130, 184, 0.25);
