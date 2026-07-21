@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@monaco-editor/react": "^4.7.0",
     "@repo/shared": "workspace:*",
     "lucide-react": "^0.500.0",

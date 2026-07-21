@@ -20,6 +20,19 @@ export const metadata: Metadata = {
     'интерактивное обучение',
     'LearnHub',
   ],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'LearnHub',
+  },
+};
+
+export const viewport = {
+  themeColor: '#1b262c',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 

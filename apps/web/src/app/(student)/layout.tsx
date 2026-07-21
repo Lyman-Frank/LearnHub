@@ -8,6 +8,7 @@ import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
 import { api } from '@/lib/api';
 import { NotificationBell } from '@/components/notification-bell';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
@@ -180,6 +181,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               </span>
             </Link>
 
+            <PwaInstallPrompt />
             <NotificationBell />
             <button
               onClick={handleLogout}

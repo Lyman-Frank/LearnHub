@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { Loading } from '@/components/ui/loading';
 import { NotificationBell } from '@/components/notification-bell';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -126,6 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </span>
             </div>
 
+            <PwaInstallPrompt />
             <NotificationBell />
             <button
               onClick={handleLogout}

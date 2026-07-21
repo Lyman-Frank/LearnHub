@@ -8,6 +8,7 @@ import { auth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Loading } from '@/components/ui/loading';
 import { NotificationBell } from '@/components/notification-bell';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 
 export default function AuthorLayout({ children }: { children: React.ReactNode }) {
@@ -141,6 +142,7 @@ export default function AuthorLayout({ children }: { children: React.ReactNode }
               </span>
             </Link>
 
+            <PwaInstallPrompt />
             <NotificationBell />
             <button
               onClick={handleLogout}
