@@ -245,7 +245,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
 
   // Добавление структуры
   const handleAddModule = async () => {
-    const title = (await window.customPrompt()):');
+    const title = await window.customPrompt('Название нового раздела:');
     if (!title) return;
     try {
       const position = (course?.modules.length || 0) + 1;
@@ -257,7 +257,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
   };
 
   const handleAddLesson = async (moduleId: string, currentLessonsCount: number) => {
-    const title = (await window.customPrompt());
+    const title = await window.customPrompt('Название нового урока:');
     if (!title) return;
     try {
       await api.createLesson({ title, position: currentLessonsCount + 1, moduleId });
@@ -298,15 +298,15 @@ export default function CourseBuilderPage({ params }: PageProps) {
     const newTitle = (await window.customPrompt()):', currentTitle);
     if (newTitle === null) return;
     
-    const xpStr = (await window.customPrompt()) или оставьте пустым:', currentXp !== null && currentXp !== undefined ? String(currentXp) : '');
+    const xpStr = await window.customPrompt('Введите количество XP за раздел или оставьте пустым:', currentXp !== null && currentXp !== undefined ? String(currentXp) : '');
     if (xpStr === null) return;
     const xpVal = xpStr === '' ? null : parseInt(xpStr, 10);
 
-    const passwordVal = (await window.customPrompt()):', currentPassword || '');
+    const passwordVal = await window.customPrompt('Введите пароль для доступа к разделу или оставьте пустым:', currentPassword || '');
     if (passwordVal === null) return;
     const finalPassword = passwordVal === '' ? null : passwordVal;
 
-    const availVal = prompt(
+    const availVal = await window.customPrompt(
       'Введите дату публикации раздела (ГГГГ-ММ-ДД ЧЧ:ММ) или оставьте пустым для немедленной публикации:',
       currentAvailableAt ? new Date(currentAvailableAt).toISOString().substring(0, 16).replace('T', ' ') : ''
     );
@@ -321,7 +321,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
       }
     }
 
-    const deadVal = prompt(
+    const deadVal = await window.customPrompt(
       'Введите дедлайн сдачи раздела (ГГГГ-ММ-ДД ЧЧ:ММ) или оставьте пустым:',
       currentDeadlineAt ? new Date(currentDeadlineAt).toISOString().substring(0, 16).replace('T', ' ') : ''
     );
@@ -336,7 +336,9 @@ export default function CourseBuilderPage({ params }: PageProps) {
       }
     }
 
-    const archiveConfirm = (await window.customConfirm())?');
+    const archiveConfirm = await window.customConfirm(
+      currentIsArchived ? 'Разархивировать этот раздел?' : 'Архивировать этот раздел (скрыть от студентов)?'
+    );
     const isArchivedVal = currentIsArchived ? !archiveConfirm : archiveConfirm;
 
     try {
@@ -363,10 +365,10 @@ export default function CourseBuilderPage({ params }: PageProps) {
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
-    const newTitle = (await window.customPrompt());
+    const newTitle = await window.customPrompt('Новое название урока:', currentTitle);
     if (newTitle === null) return;
 
-    const availVal = prompt(
+    const availVal = await window.customPrompt(
       'Введите дату публикации урока (ГГГГ-ММ-ДД ЧЧ:ММ) или оставьте пустым для немедленной публикации:',
       currentAvailableAt ? new Date(currentAvailableAt).toISOString().substring(0, 16).replace('T', ' ') : ''
     );
@@ -381,7 +383,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
       }
     }
 
-    const deadVal = prompt(
+    const deadVal = await window.customPrompt(
       'Введите дедлайн сдачи урока (ГГГГ-ММ-ДД ЧЧ:ММ) или оставьте пустым:',
       currentDeadlineAt ? new Date(currentDeadlineAt).toISOString().substring(0, 16).replace('T', ' ') : ''
     );
@@ -396,7 +398,9 @@ export default function CourseBuilderPage({ params }: PageProps) {
       }
     }
 
-    const archiveConfirm = (await window.customConfirm())?');
+    const archiveConfirm = await window.customConfirm(
+      currentIsArchived ? 'Разархивировать этот урок?' : 'Архивировать этот урок (скрыть от студентов)?'
+    );
     const isArchivedVal = currentIsArchived ? !archiveConfirm : archiveConfirm;
 
     try {
@@ -415,7 +419,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
   // Удаление структуры
   const handleDeleteModule = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!(await window.customConfirm())) return;
+    if (!(await window.customConfirm('Вы уверены, что хотите удалить этот раздел?'))) return;
     try {
       await api.deleteModule(id);
       loadCourse();
@@ -426,7 +430,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
 
   const handleDeleteLesson = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!(await window.customConfirm())) return;
+    if (!(await window.customConfirm('Вы уверены, что хотите удалить этот урок?'))) return;
     try {
       await api.deleteLesson(id);
       loadCourse();
@@ -437,7 +441,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
 
   const handleDeleteStep = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!(await window.customConfirm())) return;
+    if (!(await window.customConfirm('Вы уверены, что хотите удалить этот шаг?'))) return;
     try {
       await api.deleteStep(id);
       if (selectedStep?.id === id) {
