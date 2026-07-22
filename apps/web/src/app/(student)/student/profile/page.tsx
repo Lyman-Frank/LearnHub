@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { User as UserIcon, BookOpen, CheckCircle, Award, Edit3, Loader2, Download, Shield, MessageSquare, Settings } from 'lucide-react';
+import { User as UserIcon, BookOpen, CheckCircle, Award, Edit3, Loader2, Download, Shield, MessageSquare, Settings, Zap } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
