@@ -96,7 +96,7 @@ export function ProfileSettingsModal({ isOpen, onClose, currentUser, onUpdate }:
       const res = await fetch(`${api.baseUrl}/upload/avatar`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${api.getToken()}`
+          'Authorization': `Bearer ${auth.getAccessToken()}`
         },
         body: formData
       });
