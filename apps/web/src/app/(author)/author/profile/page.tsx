@@ -1,21 +1,32 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { BookOpen, GraduationCap, Loader2 } from 'lucide-react';
+import { BookOpen, GraduationCap, Loader2, ChevronRight, Users } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { api } from '@/lib/api';
+import Link from 'next/link';
 
 export default function AuthorProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const u = auth.getUser();
     setUser(u);
-    api.getUserStats()
-      .then(setStats)
-      .catch(() => setStats(null))
+    
+    Promise.all([
+      api.getUserStats().catch(() => null),
+      api.getAuthorCourses().catch(() => []),
+      api.getTeacherGroups().catch(() => [])
+    ])
+      .then(([statsData, coursesData, groupsData]) => {
+        setStats(statsData);
+        setCourses(coursesData);
+        setGroups(groupsData);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -77,6 +88,62 @@ export default function AuthorProfilePage() {
           )}
           <div className="text-xs text-slate-400 font-medium">Студентов обучается</div>
         </div>
+      </div>
+
+      {/* Мои Курсы */}
+      <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <BookOpen size={16} /> Разработанные курсы
+        </h2>
+        {loading ? (
+          <div className="flex justify-center py-4"><Loader2 className="animate-spin text-slate-500" size={20} /></div>
+        ) : courses.length === 0 ? (
+          <p className="text-sm text-slate-500">У вас пока нет разработанных курсов.</p>
+        ) : (
+          <div className="space-y-2">
+            {courses.map(course => (
+              <Link 
+                key={course.id} 
+                href={`/author/course/${course.id}`}
+                className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800 transition-colors group"
+              >
+                <div>
+                  <div className="font-semibold text-slate-200">{course.title}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">Статус: {course.status === 'PUBLISHED' ? 'Опубликован' : course.status === 'DRAFT' ? 'Черновик' : 'На модерации'}</div>
+                </div>
+                <ChevronRight size={16} className="text-slate-600 group-hover:text-fuchsia-400 transition-colors" />
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Мои Классы */}
+      <div className="p-6 rounded-2xl border border-slate-900 bg-slate-950/50 space-y-4">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <Users size={16} /> Мои классы (группы)
+        </h2>
+        {loading ? (
+          <div className="flex justify-center py-4"><Loader2 className="animate-spin text-slate-500" size={20} /></div>
+        ) : groups.length === 0 ? (
+          <p className="text-sm text-slate-500">У вас пока нет созданных классов.</p>
+        ) : (
+          <div className="space-y-2">
+            {groups.map(group => (
+              <Link 
+                key={group.id} 
+                href={`/author/groups?id=${group.id}`}
+                className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800 transition-colors group"
+              >
+                <div>
+                  <div className="font-semibold text-slate-200">{group.name}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">Код: {group.code} · Студентов: {group._count?.members ?? 0}</div>
+                </div>
+                <ChevronRight size={16} className="text-slate-600 group-hover:text-violet-400 transition-colors" />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Информация об аккаунте */}

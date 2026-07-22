@@ -768,6 +768,24 @@ export class CoursesService {
           const time = prog?.timeSpent ?? 0;
           totalTimeSpent += time;
 
+          let displayAnswer = prog?.answer ?? null;
+          
+          if (displayAnswer && (step.type === 'QUIZ' || step.type === 'MULTIPLE_CHOICE')) {
+            try {
+              const contentObj = typeof step.content === 'string' ? JSON.parse(step.content as string) : step.content;
+              if (contentObj && contentObj.options) {
+                const selectedIds = displayAnswer.split(',');
+                const optionTexts = selectedIds.map(id => {
+                  const opt = contentObj.options.find((o: any) => o.id === id.trim());
+                  return opt ? opt.text : id;
+                });
+                displayAnswer = optionTexts.join(', ');
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
           stepsDetails.push({
             id: step.id,
             title: step.title,
@@ -776,7 +794,7 @@ export class CoursesService {
             moduleTitle: mod.title,
             isCompleted: prog?.isCompleted ?? false,
             timeSpent: time,
-            answer: prog?.answer ?? null,
+            answer: displayAnswer,
             isCorrect: prog?.isCorrect ?? null,
             attempts: prog?.attempts ?? 0,
             completedAt: prog?.completedAt ?? null
