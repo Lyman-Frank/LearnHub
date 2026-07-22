@@ -21,6 +21,7 @@ export interface CraftingLevel {
   initialInventory: InventoryItem[];
   obstacle: ObstacleType;
   requiredTool: ItemId; // The tool needed to break the obstacle and win
+  tutorial?: boolean;
   status?: 'published' | 'draft';
   createdAt?: string;
   updatedAt?: string;
