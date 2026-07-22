@@ -154,7 +154,7 @@ export default function AdminCoursesPage() {
                         <Loader2 className="animate-spin text-fuchsia-400" size={16} />
                       ) : (
                         <>
-                          {(course.status === 'PENDING_REVIEW' || course.status === 'UNDER_REVIEW') && (
+                          {(course.status === 'PENDING_REVIEW' || course.status === 'UNDER_REVIEW' || course.status === 'DRAFT') && (
                             <button
                               onClick={() => handleStartReview(course.id)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/30 text-violet-400 text-xs font-semibold transition-all"

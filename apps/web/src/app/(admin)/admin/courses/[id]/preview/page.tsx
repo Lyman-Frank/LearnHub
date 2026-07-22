@@ -185,7 +185,7 @@ export default function AdminCoursePreviewPage({ params }: PageProps) {
 
 
         <div className="flex items-center gap-2">
-          {(course.status === 'UNDER_REVIEW' || course.status === 'PENDING_REVIEW') ? (
+          {(course.status === 'UNDER_REVIEW' || course.status === 'PENDING_REVIEW' || course.status === 'DRAFT') ? (
             <>
               <button
                 onClick={handleApprove}
