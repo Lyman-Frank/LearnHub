@@ -130,6 +130,7 @@ async function fetchApi<T>(
 
 
 export const api = {
+  baseUrl: BASE_URL,
   async register(data: RegisterData): Promise<AuthResponse> {
     return fetchApi<AuthResponse>('/auth/register', 'POST', data);
   },
