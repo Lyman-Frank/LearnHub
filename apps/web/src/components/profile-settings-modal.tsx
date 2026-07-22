@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Lock, User, Upload, Settings } from 'lucide-react';
 import { api } from '@/lib/api';
+import { auth } from '@/lib/auth';
 
 interface ProfileSettingsModalProps {
   isOpen: boolean;
