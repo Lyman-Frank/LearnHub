@@ -390,7 +390,9 @@ export class ProgressService {
     });
     if (!user) throw new Error('Пользователь не найден');
 
-    let stats = await this.getUserStats(userId, user.role);
+    const u = user as any;
+
+    let stats = await this.getUserStats(userId, u.role);
 
     let badges = await this.prisma.userBadge.findMany({
       where: { userId },
@@ -399,16 +401,16 @@ export class ProgressService {
 
     const isOwn = userId === currentUserId;
     if (!isOwn) {
-      user.email = undefined; // hide email
-      if (user.privacySettings) {
+      u.email = undefined; // hide email
+      if (u.privacySettings) {
         try {
-          const p = JSON.parse(user.privacySettings);
+          const p = JSON.parse(u.privacySettings);
           if (p.badges === false) badges = [];
-          if (p.courses === false) user.enrollments = [];
-          if (p.shop === false) user.ownedItems = [];
+          if (p.courses === false) u.enrollments = [];
+          if (p.shop === false) u.ownedItems = [];
           if (p.institution === false) {
-            user.institutionType = null;
-            user.institutionName = null;
+            u.institutionType = null;
+            u.institutionName = null;
           }
           if (p.stats === false) {
             stats = null;
@@ -418,7 +420,7 @@ export class ProgressService {
     }
 
     return {
-      user,
+      user: u,
       stats,
       badges: badges.map(ub => ub.badge)
     };

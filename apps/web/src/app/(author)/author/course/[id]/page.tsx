@@ -295,7 +295,7 @@ export default function CourseBuilderPage({ params }: PageProps) {
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
-    const newTitle = (await window.customPrompt()):', currentTitle);
+    const newTitle = await window.customPrompt('Новое название раздела:', currentTitle);
     if (newTitle === null) return;
     
     const xpStr = await window.customPrompt('Введите количество XP за раздел или оставьте пустым:', currentXp !== null && currentXp !== undefined ? String(currentXp) : '');
