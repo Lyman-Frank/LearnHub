@@ -57,10 +57,7 @@ export function ProfileSettingsModal({ isOpen, onClose, currentUser, onUpdate }:
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      await api.request('/auth/profile', {
-        method: 'POST',
-        body: JSON.stringify({ firstName, lastName, email, institutionType, institutionName }),
-      });
+      await api.updateProfile({ firstName, lastName, email, institutionType, institutionName });
       window.customAlert('Профиль успешно обновлен!');
       onUpdate();
     } catch (e: any) {
@@ -73,10 +70,7 @@ export function ProfileSettingsModal({ isOpen, onClose, currentUser, onUpdate }:
   const handleSavePrivacy = async () => {
     setLoading(true);
     try {
-      await api.request('/auth/privacy', {
-        method: 'POST',
-        body: JSON.stringify({ privacySettings: JSON.stringify(privacy) }),
-      });
+      await api.updatePrivacy({ privacySettings: JSON.stringify(privacy) });
       window.customAlert('Настройки приватности сохранены!');
       onUpdate();
     } catch (e: any) {

@@ -175,6 +175,10 @@ export const api = {
     return fetchApi<any>('/minigames/config', 'GET');
   },
 
+  async updateMinigameConfig(config: Record<string, number>): Promise<any> {
+    return fetchApi<any>('/minigames/config', 'POST', { config });
+  },
+
   // === КУРСЫ ===
   async getAuthorCourses(): Promise<any[]> {
     return fetchApi<any[]>('/courses/author', 'GET');
@@ -534,6 +538,18 @@ export const api = {
 
   async deleteShopItem(id: string): Promise<any> {
     return fetchApi<any>(`/shop/admin/delete/${id}`, 'DELETE');
+  },
+
+  async updateShopItem(id: string, data: any): Promise<any> {
+    return fetchApi<any>(`/shop/admin/update/${id}`, 'POST', data);
+  },
+
+  async updateProfile(data: any): Promise<any> {
+    return fetchApi<any>('/auth/profile', 'POST', data);
+  },
+
+  async updatePrivacy(data: any): Promise<any> {
+    return fetchApi<any>('/auth/privacy', 'POST', data);
   },
 };
 

@@ -13,7 +13,7 @@ export default function AdminMinigamesHub() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.request('/minigames/config').then((data) => {
+    api.getMinigameConfig().then((data) => {
       setXpConfig(data);
       setLoading(false);
     }).catch(console.error);
@@ -22,10 +22,7 @@ export default function AdminMinigamesHub() {
   const handleSaveConfig = async () => {
     setSaving(true);
     try {
-      await api.request('/minigames/config', {
-        method: 'POST',
-        body: JSON.stringify({ config: xpConfig })
-      });
+      await api.updateMinigameConfig(xpConfig);
       window.customAlert('Настройки XP успешно сохранены!');
     } catch (e: any) {
       window.customAlert(e.message || 'Ошибка сохранения');

@@ -104,10 +104,7 @@ export default function AdminShopPage() {
       };
 
       if (editingId) {
-        await api.request(`/shop/admin/update/${editingId}`, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
+        await api.updateShopItem(editingId, payload);
         setSuccess('Товар успешно обновлен!');
       } else {
         await api.createShopItem(payload);
