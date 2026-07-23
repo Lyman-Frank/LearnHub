@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, Flame, Loader2, Award, Zap, ArrowUpRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { auth } from '@/lib/auth';
+import Link from 'next/link';
 
 interface LeaderboardUser {
   id: string;
@@ -181,7 +182,7 @@ export default function LeaderboardPage() {
                 return (
                   <div key={user.id} className="flex flex-col items-center group">
                     {/* Аватар и Корона */}
-                    <div className="relative mb-3 flex flex-col items-center">
+                    <Link href={`/user/${user.id}`} className="relative mb-3 flex flex-col items-center cursor-pointer group-hover:opacity-90">
                       {rank === 1 && (
                         <span className="text-2xl sm:text-3xl animate-bounce duration-1000 mb-0.5">👑</span>
                       )}
@@ -206,13 +207,13 @@ export default function LeaderboardPage() {
                       <span className={`absolute -bottom-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black border ring-4 ring-slate-950 ${getRankBadgeStyles(rank)}`}>
                         {rank}
                       </span>
-                    </div>
+                    </Link>
 
                     {/* Информация о пользователе */}
                     <div className="text-center w-full px-1 mb-2">
-                      <p className={`font-bold text-xs sm:text-sm truncate ${isMe && !getUsernameColorClass(user) ? 'text-violet-400' : 'text-white'} ${getUsernameColorClass(user)}`}>
+                      <Link href={`/user/${user.id}`} className={`block font-bold text-xs sm:text-sm truncate hover:underline ${isMe && !getUsernameColorClass(user) ? 'text-violet-400' : 'text-white'} ${getUsernameColorClass(user)}`}>
                         {user.firstName} {user.lastName}
-                      </p>
+                      </Link>
                       <div className="flex items-center justify-center gap-1 mt-0.5">
                         <Flame size={12} className={user.streak > 0 ? 'text-amber-400' : 'text-slate-600'} />
                         <span className="text-[10px] font-semibold text-slate-400">{user.streak} дн.</span>
@@ -259,7 +260,7 @@ export default function LeaderboardPage() {
                           </span>
 
                           {/* Аватар */}
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border overflow-hidden bg-slate-900 ${
+                          <Link href={`/user/${user.id}`} className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border overflow-hidden bg-slate-900 cursor-pointer transition-transform hover:scale-105 ${
                             frameMeta?.borderClass ? frameMeta.borderClass : isMe ? 'border-violet-500' : 'border-slate-800'
                           }`}>
                             {user.avatarUrl ? (
@@ -267,12 +268,12 @@ export default function LeaderboardPage() {
                             ) : (
                               <span>{user.firstName[0]}</span>
                             )}
-                          </div>
+                          </Link>
 
                           {/* Имя */}
-                          <span className={`text-xs sm:text-sm font-semibold ${isMe && !getUsernameColorClass(user) ? 'text-violet-400 font-bold' : 'text-slate-300'} ${getUsernameColorClass(user)}`}>
+                          <Link href={`/user/${user.id}`} className={`text-xs sm:text-sm font-semibold hover:underline cursor-pointer ${isMe && !getUsernameColorClass(user) ? 'text-violet-400 font-bold' : 'text-slate-300'} ${getUsernameColorClass(user)}`}>
                             {user.firstName} {user.lastName} {isMe && '(Вы)'}
-                          </span>
+                          </Link>
                         </div>
 
                         <div className="flex items-center gap-4">

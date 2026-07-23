@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
 import { auth } from '@/lib/auth';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   Send, Loader2, MessageSquare, Shield, User as UserIcon, 
   Search, ArrowLeft, Clock, AlertCircle, CheckCircle2 
@@ -438,12 +439,12 @@ export function ChatView() {
               ) : (
                 messages.map((msg) => (
                   <div key={msg.id} className="flex items-start gap-3 text-sm animate-fade-in group">
-                    <div 
-                      onClick={() => currentUser?.id !== msg.user.id && selectConversation(msg.user)}
+                    <Link 
+                      href={`/user/${msg.user.id}`}
                       className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden shrink-0 cursor-pointer transition-colors ${
                         getAvatarFrameMeta(msg.user)?.borderClass || 'border-violet-500/20 bg-slate-900 hover:border-violet-500'
                       }`}
-                      title="Написать личное сообщение"
+                      title="Открыть профиль"
                     >
                       {msg.user.avatarUrl ? (
                         <img src={msg.user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -452,20 +453,29 @@ export function ChatView() {
                           {msg.user.firstName[0]}{msg.user.lastName[0]}
                         </span>
                       )}
-                    </div>
+                    </Link>
 
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span 
-                          onClick={() => currentUser?.id !== msg.user.id && selectConversation(msg.user)}
+                        <Link 
+                          href={`/user/${msg.user.id}`}
                           className={`font-bold cursor-pointer transition-colors ${
                             getUsernameColorClass(msg.user) || 'text-slate-200 hover:text-violet-400'
                           }`}
-                          title="Написать личное сообщение"
+                          title="Открыть профиль"
                         >
                           {msg.user.lastName} {msg.user.firstName}
-                        </span>
+                        </Link>
                         {getRoleBadge(msg.user.role)}
+                        {currentUser?.id !== msg.user.id && (
+                          <button
+                            onClick={() => selectConversation(msg.user)}
+                            className="text-slate-500 hover:text-violet-400 transition-colors"
+                            title="Написать личное сообщение"
+                          >
+                            <MessageSquare size={14} />
+                          </button>
+                        )}
                         <span className="text-[9px] text-slate-600">
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
