@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { Loader2, ArrowLeft, GraduationCap, Shield, Trophy, Flame } from 'lucide-react';
+import { Loader2, ArrowLeft, GraduationCap, Shield, Trophy, Flame, BookOpen, ShoppingBag, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 
 export default function PublicProfilePage() {
@@ -82,6 +83,12 @@ export default function PublicProfilePage() {
                   {isTeacher ? 'Преподаватель' : 'Студент'}
                 </span>
                 
+                {user.institutionName && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold tracking-wider">
+                    <GraduationCap size={14} /> {user.institutionName}
+                  </span>
+                )}
+                
                 {!isTeacher && stats && (
                   <>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold tracking-wider">
@@ -114,6 +121,50 @@ export default function PublicProfilePage() {
                   <div>
                     <div className="font-bold text-sm text-slate-200">{b.name}</div>
                     <div className="text-[10px] text-slate-500 mt-1 leading-tight">{b.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Completed Courses Section */}
+        {user.enrollments && user.enrollments.filter((e: any) => e.isCompleted).length > 0 && (
+          <div className="p-6 sm:p-8 rounded-3xl border border-slate-900 bg-slate-950/50 space-y-4">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <BookOpen size={20} className="text-blue-400" /> Пройденные курсы
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {user.enrollments.filter((e: any) => e.isCompleted).map((enr: any) => (
+                <div key={enr.id} className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
+                    <CheckCircle2 size={24} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-slate-200">{enr.course.title}</div>
+                    <div className="text-[10px] text-slate-500 mt-0.5">{enr.course.description?.substring(0, 50) || ''}...</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Purchased Items Section */}
+        {user.ownedItems && user.ownedItems.length > 0 && (
+          <div className="p-6 sm:p-8 rounded-3xl border border-slate-900 bg-slate-950/50 space-y-4">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <ShoppingBag size={20} className="text-emerald-400" /> Инвентарь
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {user.ownedItems.map((oi: any) => (
+                <div key={oi.id} className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex flex-col items-center text-center gap-3 relative">
+                  <div className="w-16 h-16 rounded-xl bg-slate-800/50 flex items-center justify-center p-2">
+                    {oi.item.imageUrl ? <img src={oi.item.imageUrl} alt={oi.item.name} className="w-full h-full object-contain" /> : <ShoppingBag size={24} className="text-slate-500" />}
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-slate-200">{oi.item.name}</div>
+                    {oi.isEquipped && <div className="text-[10px] text-emerald-400 mt-1 font-bold">НАДЕТО</div>}
                   </div>
                 </div>
               ))}

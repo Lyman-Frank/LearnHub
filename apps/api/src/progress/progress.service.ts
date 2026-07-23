@@ -364,7 +364,7 @@ export class ProgressService {
     };
   }
 
-  async getUserProfile(userId: string, currentUserId?: string) {
+  async getUserProfile(userId: string, currentUserId?: string, currentUserRole?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -380,7 +380,6 @@ export class ProgressService {
         privacySettings: true,
         subscriptionExpiresAt: true,
         ownedItems: {
-          where: { isEquipped: true },
           include: { item: true }
         },
         enrollments: {
@@ -399,7 +398,7 @@ export class ProgressService {
       include: { badge: true }
     });
 
-    const isOwn = userId === currentUserId;
+    const isOwn = userId === currentUserId || currentUserRole === 'ADMIN';
     if (!isOwn) {
       u.email = undefined; // hide email
       if (u.privacySettings) {

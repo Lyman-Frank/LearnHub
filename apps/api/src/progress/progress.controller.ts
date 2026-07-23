@@ -45,7 +45,7 @@ export class ProgressController {
   @Get('users/:userId/profile')
   @ApiOperation({ summary: 'Получить профиль и статистику любого пользователя' })
   async getUserProfile(@Param('userId') userId: string, @Request() req: any) {
-    return this.progressService.getUserProfile(userId, req.user?.id);
+    return this.progressService.getUserProfile(userId, req.user?.id, req.user?.role);
   }
 
   @Get('leaderboard')
