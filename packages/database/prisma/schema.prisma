@@ -39,6 +39,12 @@ model User {
   subscriptionExpiresAt DateTime?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+  
+  // Юридические согласия (РК)
+  agreedToTerms   Boolean              @default(false)
+  agreedToTermsAt DateTime?
+  parentalConsent Boolean              @default(false)
+
   courses         Course[]             @relation("CourseAuthor")
   enrollments     Enrollment[]
   progress        StepProgress[]

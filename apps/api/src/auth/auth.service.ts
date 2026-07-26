@@ -25,6 +25,10 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    if (!dto.agreedToTerms) {
+      throw new BadRequestException('Необходимо согласие с политикой конфиденциальности и пользовательским соглашением');
+    }
+
     const existingUser = await this.usersService.findByEmail(dto.email);
     if (existingUser) {
       throw new ConflictException('Пользователь с такой электронной почтой уже зарегистрирован');
@@ -69,6 +73,9 @@ export class AuthService {
       institutionType: dto.institutionType,
       institutionName: dto.institutionName,
       subscriptionExpiresAt,
+      agreedToTerms: true,
+      agreedToTermsAt: new Date(),
+      parentalConsent: dto.parentalConsent || false,
     });
 
     const tokens = await this.generateTokens(user.id, user.email, user.role);

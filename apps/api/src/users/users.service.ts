@@ -27,6 +27,9 @@ export class UsersService {
     institutionType?: string;
     institutionName?: string;
     subscriptionExpiresAt?: Date;
+    agreedToTerms?: boolean;
+    agreedToTermsAt?: Date;
+    parentalConsent?: boolean;
   }) {
     return this.prisma.user.create({
       data: {
@@ -39,6 +42,9 @@ export class UsersService {
         institutionType: data.institutionType,
         institutionName: data.institutionName,
         subscriptionExpiresAt: data.subscriptionExpiresAt,
+        agreedToTerms: data.agreedToTerms || false,
+        agreedToTermsAt: data.agreedToTermsAt,
+        parentalConsent: data.parentalConsent || false,
       },
     });
   }

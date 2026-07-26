@@ -45,4 +45,12 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   institutionName?: string;
+
+  @ApiProperty({ example: true, description: 'Согласие с политикой конфиденциальности' })
+  @IsOptional()
+  agreedToTerms?: boolean;
+
+  @ApiPropertyOptional({ example: true, description: 'Согласие родителя (обязательно для несовершеннолетних)' })
+  @IsOptional()
+  parentalConsent?: boolean;
 }

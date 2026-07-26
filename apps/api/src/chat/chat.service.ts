@@ -1,6 +1,18 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+// Простой список запрещенных слов (для примера)
+const PROFANITY_LIST = ['дурак', 'идиот', 'дебил', 'придурок', 'сука', 'блять', 'бля', 'хрен'];
+
+function filterProfanity(text: string): string {
+  let filteredText = text;
+  for (const word of PROFANITY_LIST) {
+    const regex = new RegExp(word, 'gi');
+    filteredText = filteredText.replace(regex, '***');
+  }
+  return filteredText;
+}
+
 @Injectable()
 export class ChatService {
   private lastMessageTime = new Map<string, number>();
@@ -19,8 +31,11 @@ export class ChatService {
   // === GLOBAL CHAT ===
   async sendGlobalMessage(userId: string, message: string) {
     this.checkCooldown(userId);
-    const trimmed = message.trim();
+    let trimmed = message.trim();
     if (!trimmed) throw new ForbiddenException('Сообщение не может быть пустым');
+    
+    // Модерация контента
+    trimmed = filterProfanity(trimmed);
 
     return this.prisma.chatMessage.create({
       data: {
@@ -70,8 +85,11 @@ export class ChatService {
   // === DIRECT MESSAGES ===
   async sendDirectMessage(senderId: string, recipientId: string, message: string) {
     this.checkCooldown(senderId);
-    const trimmed = message.trim();
+    let trimmed = message.trim();
     if (!trimmed) throw new ForbiddenException('Сообщение не может быть пустым');
+
+    // Модерация контента
+    trimmed = filterProfanity(trimmed);
 
     const recipient = await this.prisma.user.findUnique({ where: { id: recipientId } });
     if (!recipient) throw new NotFoundException('Получатель не найден');

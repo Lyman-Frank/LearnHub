@@ -148,7 +148,12 @@ export default function HomePage() {
               className="w-8 h-8 text-violet-500 transition-transform duration-300 group-hover:rotate-12"
               strokeWidth={2}
             />
-            <span className="text-xl font-bold gradient-text">LearnHub</span>
+            <span className="text-xl font-extrabold gradient-text tracking-tight">
+              LearnHub
+            </span>
+            <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 ml-1">
+              6+
+            </span>
           </a>
 
           {/* Desktop Navigation Links */}
@@ -496,28 +501,25 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <GraduationCap className="w-6 h-6 text-violet-500" />
               <span className="text-lg font-bold gradient-text">LearnHub</span>
+              <span className="text-[10px] font-bold px-1 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 ml-1">
+                6+
+              </span>
             </div>
 
             {/* Links */}
-            <div className="flex items-center gap-6 text-sm text-muted">
-              <a
-                href="#features"
-                className="hover:text-violet-500 transition-colors duration-300"
-              >
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted">
+              <a href="#features" className="hover:text-violet-500 transition-colors duration-300">
                 Курсы
               </a>
-              <a
-                href="#how-it-works"
-                className="hover:text-violet-500 transition-colors duration-300"
-              >
+              <a href="#how-it-works" className="hover:text-violet-500 transition-colors duration-300">
                 О платформе
               </a>
-              <a
-                href="#cta"
-                className="hover:text-violet-500 transition-colors duration-300"
-              >
-                Контакты
-              </a>
+              <Link href="/privacy-policy" className="hover:text-violet-500 transition-colors duration-300">
+                Политика конфиденциальности
+              </Link>
+              <Link href="/terms-of-use" className="hover:text-violet-500 transition-colors duration-300">
+                Оферта
+              </Link>
             </div>
 
             {/* Copyright */}

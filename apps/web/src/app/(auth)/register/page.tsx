@@ -24,6 +24,10 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Юридические согласия (РК)
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [parentalConsent, setParentalConsent] = useState(false);
+
   // Валидация
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -61,6 +65,13 @@ export default function RegisterPage() {
       if (institutionType !== 'Уже работает' && !institutionName) {
         newErrors.institutionName = 'Введите название учебного заведения';
       }
+      if (!parentalConsent) {
+        newErrors.parentalConsent = 'Необходимо согласие родителя/законного представителя';
+      }
+    }
+
+    if (!agreedToTerms) {
+      newErrors.agreedToTerms = 'Необходимо согласие с политикой конфиденциальности';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -80,6 +91,8 @@ export default function RegisterPage() {
         inviteCode: role === 'TEACHER' ? inviteCode : undefined,
         institutionType: role === 'STUDENT' ? institutionType : undefined,
         institutionName: role === 'STUDENT' ? institutionName : undefined,
+        agreedToTerms,
+        parentalConsent: role === 'STUDENT' ? parentalConsent : undefined,
       });
 
       // Сохраняем состояние авторизации
@@ -295,6 +308,52 @@ export default function RegisterPage() {
               error={errors.inviteCode}
               disabled={isLoading || role !== 'TEACHER'}
             />
+          </div>
+
+          <div className="space-y-4 pt-2">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative flex items-center justify-center mt-1">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  disabled={isLoading}
+                  className="peer appearance-none w-5 h-5 border-2 border-slate-600 rounded cursor-pointer checked:border-violet-500 checked:bg-violet-500 transition-colors focus:ring-2 focus:ring-violet-500/30 outline-none"
+                />
+                <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="text-sm text-slate-300 leading-relaxed">
+                Я ознакомился с <Link href="/privacy-policy" className="text-violet-400 hover:text-violet-300 underline underline-offset-2">Политикой конфиденциальности</Link> и <Link href="/terms-of-use" className="text-violet-400 hover:text-violet-300 underline underline-offset-2">Пользовательским соглашением</Link> и даю согласие на сбор и обработку моих персональных данных (и/или персональных данных моего ребенка) платформой LearnHub.
+                {errors.agreedToTerms && (
+                  <p className="text-rose-400 text-xs mt-1 font-medium">{errors.agreedToTerms}</p>
+                )}
+              </div>
+            </label>
+
+            {role === 'STUDENT' && (
+              <label className="flex items-start gap-3 cursor-pointer group animate-fade-in">
+                <div className="relative flex items-center justify-center mt-1">
+                  <input
+                    type="checkbox"
+                    checked={parentalConsent}
+                    onChange={(e) => setParentalConsent(e.target.checked)}
+                    disabled={isLoading}
+                    className="peer appearance-none w-5 h-5 border-2 border-slate-600 rounded cursor-pointer checked:border-violet-500 checked:bg-violet-500 transition-colors focus:ring-2 focus:ring-violet-500/30 outline-none"
+                  />
+                  <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="text-sm text-slate-300 leading-relaxed">
+                  Я являюсь родителем/законным представителем и даю согласие на обработку персональных данных несовершеннолетнего.
+                  {errors.parentalConsent && (
+                    <p className="text-rose-400 text-xs mt-1 font-medium">{errors.parentalConsent}</p>
+                  )}
+                </div>
+              </label>
+            )}
           </div>
 
           <button
