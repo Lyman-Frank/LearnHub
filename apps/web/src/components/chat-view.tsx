@@ -23,6 +23,9 @@ interface ChatMessage {
   id: string;
   message: string;
   createdAt: string;
+  isDeleted?: boolean;
+  isEdited?: boolean;
+  editedByAdmin?: boolean;
   user: ChatUser;
 }
 
@@ -60,6 +63,10 @@ export function ChatView() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [globalInput, setGlobalInput] = useState('');
   
+  // Moderation states
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+
   // DM states
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<ChatUser | null>(null);
@@ -198,7 +205,24 @@ export function ChatView() {
 
   const handleSendGlobal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!globalInput.trim() || cooldownTime > 0) return;
+    if (cooldownTime > 0) return;
+
+    if (editingMessageId) {
+      if (!editingText.trim()) return;
+      try {
+        await api.editGlobalMessageAdmin(editingMessageId, editingText);
+        setEditingMessageId(null);
+        setEditingText('');
+        // Обновить список сообщений
+        const globalMsgs = await api.getGlobalMessages();
+        setMessages(globalMsgs);
+      } catch (err: any) {
+        setError(err.message || 'Ошибка редактирования сообщения');
+      }
+      return;
+    }
+
+    if (!globalInput.trim()) return;
 
     setError('');
     const msgText = globalInput;
@@ -213,6 +237,37 @@ export function ChatView() {
       setGlobalInput(msgText); // Restore input on failure
       setCooldownTime(0);
     }
+  };
+
+  const handleDeleteGlobal = async (messageId: string) => {
+    if (!window.confirm('Вы уверены, что хотите удалить это сообщение?')) return;
+    try {
+      await api.deleteGlobalMessage(messageId);
+      const globalMsgs = await api.getGlobalMessages();
+      setMessages(globalMsgs);
+    } catch (err: any) {
+      setError(err.message || 'Ошибка удаления сообщения');
+    }
+  };
+
+  const handleBanUser = async (userId: string, durationHours: number) => {
+    if (!window.confirm(`Вы уверены, что хотите забанить пользователя на ${durationHours} час(ов)?`)) return;
+    try {
+      await api.banUserChat(userId, durationHours);
+      alert('Пользователь забанен.');
+    } catch (err: any) {
+      setError(err.message || 'Ошибка бана пользователя');
+    }
+  };
+
+  const startEditing = (msg: ChatMessage) => {
+    setEditingMessageId(msg.id);
+    setEditingText(msg.message);
+  };
+
+  const cancelEditing = () => {
+    setEditingMessageId(null);
+    setEditingText('');
   };
 
   const handleSendDirect = async (e: React.FormEvent) => {
@@ -480,7 +535,56 @@ export function ChatView() {
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <p className="text-slate-300 break-words leading-relaxed">{msg.message}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {msg.isDeleted ? (
+                          <p className="text-slate-500 italic text-sm">Сообщение удалено</p>
+                        ) : (
+                          <p className="text-slate-300 break-words leading-relaxed text-sm">{msg.message}</p>
+                        )}
+                        
+                        {msg.editedByAdmin && !msg.isDeleted && (
+                          <span className="text-[10px] text-slate-500 italic">(изменено администратором)</span>
+                        )}
+                      </div>
+                      
+                      {!msg.isDeleted && (
+                        <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {/* Edit button for admin */}
+                          {currentUser?.role === 'ADMIN' && (
+                            <button
+                              onClick={() => startEditing(msg)}
+                              className="text-[10px] text-violet-400 hover:text-violet-300 transition-colors"
+                            >
+                              Редактировать
+                            </button>
+                          )}
+                          
+                          {/* Delete button (Admin OR Owner within 3 mins) */}
+                          {(currentUser?.role === 'ADMIN' || 
+                            (currentUser?.id === msg.user.id && (Date.now() - new Date(msg.createdAt).getTime() < 3 * 60 * 1000))) && (
+                            <button
+                              onClick={() => handleDeleteGlobal(msg.id)}
+                              className="text-[10px] text-rose-400 hover:text-rose-300 transition-colors"
+                            >
+                              Удалить
+                            </button>
+                          )}
+                          
+                          {/* Ban button for admin */}
+                          {currentUser?.role === 'ADMIN' && currentUser?.id !== msg.user.id && (
+                            <div className="relative inline-block text-left group/ban">
+                              <button className="text-[10px] text-orange-400 hover:text-orange-300 transition-colors">
+                                Забанить
+                              </button>
+                              <div className="hidden group-hover/ban:block absolute left-0 bottom-full mb-1 w-32 rounded bg-slate-800 border border-slate-700 shadow-lg z-10">
+                                <button onClick={() => handleBanUser(msg.user.id, 1)} className="block w-full text-left px-3 py-1.5 text-xs hover:bg-slate-700 text-slate-300">На 1 час</button>
+                                <button onClick={() => handleBanUser(msg.user.id, 24)} className="block w-full text-left px-3 py-1.5 text-xs hover:bg-slate-700 text-slate-300">На 24 часа</button>
+                                <button onClick={() => handleBanUser(msg.user.id, 168)} className="block w-full text-left px-3 py-1.5 text-xs hover:bg-slate-700 text-slate-300">На неделю</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
@@ -489,18 +593,24 @@ export function ChatView() {
             </div>
 
             {/* Input bar */}
+            {editingMessageId && (
+              <div className="px-3 py-2 bg-slate-900 border-t border-slate-800 flex justify-between items-center text-xs text-slate-300">
+                <span>Редактирование сообщения...</span>
+                <button onClick={cancelEditing} className="text-rose-400 hover:text-rose-300">Отмена</button>
+              </div>
+            )}
             <form onSubmit={handleSendGlobal} className="p-3 border-t border-slate-900 bg-slate-950 flex gap-2 items-center">
               <input
                 type="text"
-                value={globalInput}
-                onChange={e => setGlobalInput(e.target.value)}
+                value={editingMessageId ? editingText : globalInput}
+                onChange={e => editingMessageId ? setEditingText(e.target.value) : setGlobalInput(e.target.value)}
                 placeholder={cooldownTime > 0 ? `Пожалуйста, подождите ${cooldownTime} сек...` : "Введите ваше сообщение..."}
                 disabled={cooldownTime > 0}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-slate-900 bg-slate-950 text-white text-xs placeholder-slate-600 focus:outline-none focus:border-violet-500 transition-all disabled:opacity-40"
               />
               <button
                 type="submit"
-                disabled={cooldownTime > 0 || !globalInput.trim()}
+                disabled={cooldownTime > 0 || (editingMessageId ? !editingText.trim() : !globalInput.trim())}
                 className="p-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all disabled:opacity-40 disabled:hover:bg-violet-600 shrink-0"
               >
                 {cooldownTime > 0 ? (

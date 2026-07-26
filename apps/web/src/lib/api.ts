@@ -454,6 +454,18 @@ export const api = {
     return fetchApi<any>(`/chat/dm/${userId}/read`, 'PATCH');
   },
 
+  async deleteGlobalMessage(messageId: string): Promise<any> {
+    return fetchApi<any>(`/chat/global/${messageId}`, 'DELETE');
+  },
+
+  async editGlobalMessageAdmin(messageId: string, message: string): Promise<any> {
+    return fetchApi<any>(`/chat/global/${messageId}`, 'PATCH', { message });
+  },
+
+  async banUserChat(userId: string, durationHours: number): Promise<any> {
+    return fetchApi<any>(`/chat/ban/${userId}`, 'POST', { durationHours });
+  },
+
   // === УВЕДОМЛЕНИЯ ===
   async getNotifications(): Promise<any[]> {
     return fetchApi<any[]>('/notifications', 'GET');

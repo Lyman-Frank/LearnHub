@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChatService } from './chat.service';
@@ -20,6 +20,32 @@ export class ChatController {
   @ApiOperation({ summary: 'Получить историю общего чата' })
   async getGlobalMessages() {
     return this.chatService.getGlobalMessages();
+  }
+
+  @Patch('global/:id')
+  @ApiOperation({ summary: 'Редактировать сообщение в общем чате (только для админов)' })
+  async editGlobalMessage(
+    @Request() req: any, 
+    @Param('id') messageId: string, 
+    @Body('message') message: string
+  ) {
+    return this.chatService.editGlobalMessageAdmin(req.user.role, messageId, message);
+  }
+
+  @Delete('global/:id')
+  @ApiOperation({ summary: 'Удалить сообщение в общем чате (пользователь в течение 3 мин, админ - всегда)' })
+  async deleteGlobalMessage(@Request() req: any, @Param('id') messageId: string) {
+    return this.chatService.deleteGlobalMessage(req.user.id, req.user.role, messageId);
+  }
+
+  @Post('ban/:userId')
+  @ApiOperation({ summary: 'Забанить пользователя в чате (только для админов)' })
+  async banUserChat(
+    @Request() req: any, 
+    @Param('userId') targetUserId: string, 
+    @Body('durationHours') durationHours: number
+  ) {
+    return this.chatService.banUserChat(req.user.role, targetUserId, durationHours);
   }
 
   @Post('dm')
