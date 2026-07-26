@@ -23,6 +23,8 @@ export interface RegisterData {
   inviteCode?: string;
   institutionType?: string;
   institutionName?: string;
+  agreedToTerms?: boolean;
+  parentalConsent?: boolean;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
